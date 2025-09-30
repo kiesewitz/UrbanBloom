@@ -27,7 +27,6 @@ Was soll am Ende des Workshops konkret erreicht sein?
 - Gemeinsame Definition der Projektziele (SMART formuliert) (Must-have Definitionen)
 - Erste Konzeptskizze der App (Funktionen, Zielgruppe, Nutzen)
 - Verteilung der Verantwortlichkeiten im Team
-- Erstellung eines groben Projektzeitplans bis zum Prototyp
 
 ## Organisation
 
@@ -62,8 +61,7 @@ Was soll am Ende des Workshops konkret erreicht sein?
 
 ### 4. Maßnahmenplanung
 - Erste To-Do-Liste: Was sind die nächsten konkreten Schritte?
-- Festlegung von Verantwortlichkeiten und groben Fristen
-- Erste Planung bis zum nächsten Meilenstein (z. B. erster Prototyp)
+- Festlegung von Verantwortlichkeiten
 
 ### 5. Abschluss & Feedback
 - Zusammenfassung der Workshop-Ergebnisse
