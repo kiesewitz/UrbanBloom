@@ -1,1 +1,14 @@
-{}
+{
+  "folders": [
+    {
+      "path": "../admin-web"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "../mobile": true,
+      "../server": true,
+      "../infra": true
+    }
+  }
+}
