@@ -1,0 +1,37 @@
+@startuml UserDomain
+package "User / Identity Domain" {
+  class User <<Entity>> {
+    +userId: UUID
+    +name: String
+    +email: String
+    +createdAt: DateTime
+    +totalPoints: int
+
+    +register(name: String, email: String)
+    +addPoints(amount: int)
+    +anonymize()
+  }
+
+  class ConsentStatus <<VO>> {
+    +consentGiven: boolean
+    +consentVersion: String
+    +consentDate: DateTime
+
+    +isValidForVersion(version: String): boolean
+  }
+
+  class AuthService <<DomainService>> {
+    +register(email: String, password: String): User
+    +authenticate(email: String, password: String): User
+  }
+
+  class PrivacyService <<DomainService>> {
+    +requestDeletion(userId: UUID)
+    +anonymizeUser(user: User)
+  }
+
+  User --> ConsentStatus : "has"
+  AuthService ..> User
+  PrivacyService ..> User
+}
+@enduml

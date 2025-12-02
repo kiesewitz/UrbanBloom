@@ -1,0 +1,62 @@
+@startuml OverallDomainModel
+skinparam packageStyle rectangle
+
+package "User / Identity" as UserDomain {
+  class User
+  class ConsentStatus
+}
+
+package "Action / Observation" as ActionDomain {
+  class Action
+}
+
+package "Location / District" as LocationDomain {
+  class Location
+  class District
+  class DistrictStats
+}
+
+package "Plant Catalog" as PlantDomain {
+  class Plant
+}
+
+package "Gamification" as GamificationDomain {
+  class Points
+  class Badge
+  class Leaderboard
+}
+
+package "Challenge" as ChallengeDomain {
+  class Challenge
+}
+
+package "Notification / Reminder" as NotificationDomain {
+  class NotificationSetting
+}
+
+package "Admin / Analytics" as AnalyticsDomain {
+  class Report
+}
+
+package "Sync / Offline" as SyncDomain {
+  class OfflinePayload
+}
+
+User --> Action : "führt aus"
+Action --> Location : "findet statt an"
+Action --> Plant : "bezieht sich auf"
+Location --> District : "liegt in"
+User --> Points : "erhält"
+Points --> Badge : "führt zu"
+Challenge --> User : "zielt auf"
+NotificationSetting --> User : "gilt für"
+Report ..> District : "wertet aus"
+OfflinePayload ..> Action : "offline Kopie"
+
+ActionDomain ..> GamificationDomain : "Event: ActionRegistered"
+ActionDomain ..> LocationDomain : "nutzt Geo-Daten"
+GamificationDomain ..> AnalyticsDomain : "liefert KPIs"
+SyncDomain ..> ActionDomain : "synchronisiert Aktionen"
+NotificationDomain ..> UserDomain : "sendet Nachrichten"
+
+@enduml

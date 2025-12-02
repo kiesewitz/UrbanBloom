@@ -1,0 +1,20 @@
+@startuml SyncDomain
+package "Sync / Offline Domain" {
+  class OfflinePayload <<VO>> {
+    +payloadId: UUID
+    +userId: UUID
+    +actionJson: String
+    +createdAt: DateTime
+
+    +toAction(): Action
+  }
+
+  class SyncService <<DomainService>> {
+    +enqueuePayload(payload: OfflinePayload)
+    +processQueue()
+    +resolveConflict(serverAction: Action, clientAction: Action)
+  }
+
+  OfflinePayload ..> SyncService
+}
+@enduml

@@ -1,0 +1,38 @@
+@startuml GamificationDomain
+package "Gamification Domain" {
+  class Points <<Entity>> {
+    +userId: UUID
+    +total: int
+    +lastUpdated: DateTime
+
+    +add(amount: int)
+    +getTotal(): int
+  }
+
+  class Badge <<Entity>> {
+    +badgeId: UUID
+    +name: String
+    +description: String
+    +threshold: int
+
+    +isAchieved(totalPoints: int): boolean
+  }
+
+  class Leaderboard <<ReadModel>> {
+    +scope: String
+    +entries: List
+
+    +updateFor(userId: UUID, points: int)
+    +getTop(limit: int)
+  }
+
+  class BadgeAssignmentService <<DomainService>> {
+    +assignBadgesFor(user: User)
+  }
+
+  Points --> Badge : "unlocks"
+  Leaderboard ..> Points
+  BadgeAssignmentService ..> Points
+  BadgeAssignmentService ..> Badge
+}
+@enduml

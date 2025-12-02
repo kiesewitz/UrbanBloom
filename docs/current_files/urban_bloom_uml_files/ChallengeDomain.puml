@@ -1,0 +1,20 @@
+@startuml ChallengeDomain
+package "Challenge Domain" {
+  class Challenge <<AggregateRoot>> {
+    +challengeId: UUID
+    +name: String
+    +scope: String
+    +startDate: Date
+    +endDate: Date
+
+    +schedule(start: Date, end: Date, scope: String)
+  }
+
+  class ChallengeEvaluationService <<DomainService>> {
+    +evaluateProgress(challengeId: UUID)
+    +finishChallenge(challengeId: UUID)
+  }
+
+  Challenge ..> ChallengeEvaluationService
+}
+@enduml

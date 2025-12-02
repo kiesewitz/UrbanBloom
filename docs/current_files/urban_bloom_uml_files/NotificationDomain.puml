@@ -1,0 +1,24 @@
+@startuml NotificationDomain
+package "Notification / Reminder Domain" {
+  class NotificationSetting <<VO>> {
+    +userId: UUID
+    +channels: String
+    +frequency: String
+    +quietHours: String
+
+    +updatePreferences(channels: String, frequency: String, quietHours: String)
+  }
+
+  class NotificationService <<DomainService>> {
+    +sendNotification(userId: UUID, message: String)
+  }
+
+  class SchedulerService <<DomainService>> {
+    +scheduleReminder(userId: UUID, trigger: String)
+    +cancelReminder(reminderId: UUID)
+  }
+
+  NotificationService ..> NotificationSetting
+  SchedulerService ..> NotificationSetting
+}
+@enduml
