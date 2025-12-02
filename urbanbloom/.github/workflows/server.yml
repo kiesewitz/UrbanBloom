@@ -1,1 +1,38 @@
-name: server
+name: Server CI
+
+on:
+  push:
+    paths:
+      - "server/**"
+      - "shared-resources/api-contracts/**"
+  pull_request:
+    paths:
+      - "server/**"
+      - "shared-resources/api-contracts/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Build and Test
+        run: mvn -B clean verify
+        working-directory: server
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: server
+          push: true
+          tags: ghcr.io/${{ github.repository }}/server:${{ github.sha }}
