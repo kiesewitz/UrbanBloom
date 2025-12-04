@@ -1,0 +1,98 @@
+name: "Bugfix"
+description: "Fehler in UrbanBloom melden."
+title: "[Bug] Kurze Beschreibung"
+labels:
+  - bug
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass du einen Bug meldest. Bitte so konkret wie möglich sein.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Kurze Zusammenfassung
+      description: "1 Satz, was nicht funktioniert."
+      placeholder: "z. B. Admin-Dashboard lädt keine Aktionen"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain (Bounded Context)
+      options:
+        - User / Identity
+        - Action / Observation
+        - Plant Catalog
+        - Location / District
+        - Gamification
+        - Challenge / Campaign
+        - Notification / Reminder
+        - Sync / Offline
+        - Admin / Analytics
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: impacted-components
+    attributes:
+      label: Betroffene Komponenten
+      options:
+        - label: Mobile App
+        - label: Admin Web
+        - label: Backend Server
+        - label: Shared Resources (API-Contracts / Docs)
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Reproduzieren
+      description: "Wie kommt man zu dem Fehler?"
+      placeholder: |
+        1. Auf das Admin Web einloggen
+        2. Auf 'Challenges' klicken
+        3. Filter 'Bezirk' setzen
+        4. Fehler tritt auf
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+      placeholder: "Was hättest du erwartet?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Tatsächliches Verhalten
+      placeholder: "Was passiert wirklich (inkl. Fehlermeldungen)?"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Schweregrad
+      options:
+        - Kritisch (System nicht nutzbar)
+        - Hoch
+        - Mittel
+        - Niedrig (Cosmetic)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Weitere Infos / Screenshots
+      description: "Optional: Logs, Screenshots, Links zu betroffenen Views."
+    validations:
+      required: false

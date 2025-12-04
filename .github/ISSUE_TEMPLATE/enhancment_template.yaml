@@ -1,0 +1,92 @@
+name: "Enhancement"
+description: "Verbesserungsvorschlag für UrbanBloom."
+title: "[Enhancement] Kurze Beschreibung"
+labels:
+  - enhancement
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Beschreibe, welches Problem gelöst werden soll und wie die Verbesserung aussehen könnte.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Kurztitel
+      placeholder: "z. B. Filter für Aktionen nach Bezirk im Admin Web"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain (Bounded Context)
+      options:
+        - User / Identity
+        - Action / Observation
+        - Plant Catalog
+        - Location / District
+        - Gamification
+        - Challenge / Campaign
+        - Notification / Reminder
+        - Sync / Offline
+        - Admin / Analytics
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: impacted-components
+    attributes:
+      label: Betroffene Komponenten
+      options:
+        - label: Mobile App
+        - label: Admin Web
+        - label: Backend Server
+        - label: Shared Resources (API-Contracts / Docs)
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem soll gelöst werden?
+      placeholder: |
+        Beispiel: Im Admin Web können Aktionen nicht nach Bezirk gefiltert werden,
+        dadurch ist das Monitoring für große Städte unübersichtlich.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Vorschlag / Lösungsidee
+      placeholder: |
+        Beispiel: Im Admin-Dashboard einen zusätzlichen Filter 'Bezirk' hinzufügen
+        und den Endpoint GET /admin/actions um einen Query-Parameter districtId erweitern.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorität
+      options:
+        - MUST
+        - SHOULD
+        - COULD
+        - WON'T (vorerst nicht)
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Akzeptanzkriterien
+      description: "Wann gilt die Verbesserung als erledigt?"
+      placeholder: |
+        - Admin kann Aktionen im Dashboard nach Bezirk filtern.
+        - Filtereinstellung bleibt beim Wechsel zwischen Tabs erhalten.
+        - API-Dokumentation (OpenAPI) ist aktualisiert.
+    validations:
+      required: false
