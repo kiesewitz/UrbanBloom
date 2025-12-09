@@ -1,0 +1,64 @@
+name: "Refactor"
+description: "Code-Verbesserung ohne fachliches Verhalten zu ändern."
+title: "[Refactor] Kurze Beschreibung"
+labels:
+  - refactor
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Refactor-Issues dienen dazu, technischen Schulden abzubauen,
+        ohne das fachliche Verhalten zu ändern.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Kurztitel
+      placeholder: "z. B. Admin-Web: Aktionen-Table in kleinere Komponenten aufteilen"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: impacted-components
+    attributes:
+      label: Betroffene Komponenten
+      options:
+        - label: Mobile App
+        - label: Admin Web
+        - label: Backend Server
+        - label: Shared Resources (API-Contracts / Docs)
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Aktueller Zustand / Problem
+      placeholder: |
+        Beispiel: Die Komponente ActionsTable.tsx enthält zu viel Logik
+        (Datenfetching, Filter, Rendering) und ist schwer zu testen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: target
+    attributes:
+      label: Zielbild / Refactor-Ansatz
+      placeholder: |
+        Beispiel: Datenfetching in eigenen Hook auslagern, Table in kleinere
+        Präsentations-Komponenten aufteilen, Tests für Hooks und Komponenten ergänzen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risiken & Tests
+      description: "Welche Risiken gibt es und wie wird getestet, dass nichts fachlich kaputt geht?"
+      placeholder: |
+        Beispiel:
+        - Risiko: Filter- und Paginierungslogik funktioniert nicht mehr korrekt.
+        - Tests: Bestehende E2E-Tests laufen lassen, neue Unit-Tests für Filter-Hooks hinzufügen.
+    validations:
+      required: false

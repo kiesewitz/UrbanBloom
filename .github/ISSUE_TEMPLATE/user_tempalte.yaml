@@ -1,0 +1,109 @@
+name: "User Story"
+description: "Neue User Story für UrbanBloom erfassen."
+title: "[Story] Kurzer Titel"
+labels:
+  - user-story
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bitte formuliere die Story im Stil:
+        "Als <Rolle> möchte ich <Wunsch>, damit <Nutzen>."
+
+  - type: input
+    id: summary
+    attributes:
+      label: Kurztitel
+      placeholder: "z. B. Als Admin möchte ich Bezirke filtern"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: story-type
+    attributes:
+      label: Typ
+      options:
+        - Fachliche User Story
+        - Technische Story
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain (Bounded Context)
+      options:
+        - User / Identity
+        - Action / Observation
+        - Plant Catalog
+        - Location / District
+        - Gamification
+        - Challenge / Campaign
+        - Notification / Reminder
+        - Sync / Offline
+        - Admin / Analytics
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorität
+      options:
+        - MUST
+        - SHOULD
+        - COULD
+        - WON'T (vorerst nicht)
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      placeholder: |
+        Als Administrator möchte ich Aktionen nach Bezirk filtern,
+        damit ich Hotspots schneller identifizieren kann.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Akzeptanzkriterien
+      description: "Bullet-Liste reicht."
+      placeholder: |
+        - Admin kann im Dashboard einen Bezirk auswählen.
+        - Es werden nur Aktionen dieses Bezirks angezeigt.
+        - Auswahl wird im URL-Filter oder Zustand gespeichert.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: impacted-components
+    attributes:
+      label: Betroffene Komponenten
+      options:
+        - label: Mobile App
+        - label: Admin Web
+        - label: Backend Server
+        - label: Shared Resources (API-Contracts / Docs)
+    validations:
+      required: true
+
+  - type: input
+    id: story-points
+    attributes:
+      label: Story Points
+      placeholder: "z. B. 3"
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notizen / Hinweise
+      description: "Optional: UI-Ideen, API-Hinweise, Links zu Mockups."
+    validations:
+      required: false
