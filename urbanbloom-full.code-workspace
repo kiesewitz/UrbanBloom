@@ -1,0 +1,58 @@
+{
+  // Full Workspace - Für Cross-Platform-Entwicklung und API-Änderungen
+  // Verwendung: Wenn an mehreren Komponenten gleichzeitig gearbeitet wird
+  // Öffnen: code urbanbloom-full.code-workspace
+  "folders": [
+    {
+      "path": ".",
+      "name": "UrbanBloom (Root)"
+    },
+    {
+      "path": "mobile",
+      "name": "Mobile App"
+    },
+    {
+      "path": "admin-web",
+      "name": "Admin Web"
+    },
+    {
+      "path": "server",
+      "name": "Backend Server"
+    }
+  ],
+  "settings": {
+    // Globale Workspace-Einstellungen
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/node_modules": true,
+      "**/.dart_tool": true,
+      "**/build": true,
+      "**/dist": true,
+      "mobile/build": true,
+      "mobile/.flutter-plugins": true,
+      "mobile/.flutter-plugins-dependencies": true,
+      "admin-web/build": true,
+      "server/target": true,
+      "server/.mvn": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/build": true,
+      "**/dist": true,
+      "**/.dart_tool": true,
+      "mobile/build": true,
+      "admin-web/build": true,
+      "server/target": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dart-code.dart-code",
+      "dart-code.flutter",
+      "vscjava.vscode-java-pack",
+      "vmware.vscode-spring-boot",
+      "github.vscode-github-actions"
+    ]
+  }
+}

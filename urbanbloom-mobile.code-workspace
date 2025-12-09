@@ -1,0 +1,97 @@
+{
+  // Mobile Workspace - Für Flutter Mobile App Entwicklung
+  // Verwendung: Fokussierte Entwicklung an der mobilen App
+  // Öffnen: code urbanbloom-mobile.code-workspace
+  "folders": [
+    {
+      "path": "mobile",
+      "name": "Mobile App"
+    },
+    {
+      "path": "shared-resources",
+      "name": "Shared Resources"
+    }
+  ],
+  "settings": {
+    // Mobile-spezifische Einstellungen
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/.dart_tool": true,
+      "**/build": true,
+      "**/.flutter-plugins": true,
+      "**/.flutter-plugins-dependencies": true,
+      "**/ios/Pods": true,
+      "**/android/.gradle": true,
+      // Andere Projekt-Ordner ausblenden
+      "../admin-web": true,
+      "../server": true
+    },
+    // Dart & Flutter Einstellungen
+    "[dart]": {
+      "editor.formatOnSave": true,
+      "editor.formatOnType": true,
+      "editor.rulers": [
+        80
+      ],
+      "editor.selectionHighlight": false,
+      "editor.suggestSelection": "first",
+      "editor.tabCompletion": "onlySnippets",
+      "editor.wordBasedSuggestions": "off"
+    },
+    "dart.flutterSdkPath": "",
+    "dart.debugExternalPackageLibraries": false,
+    "dart.debugSdkLibraries": false,
+    "dart.analysisExcludedFolders": [
+      "**/build/**",
+      "**/.dart_tool/**",
+      "**/ios/Pods/**",
+      "**/android/.gradle/**"
+    ],
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dart-code.dart-code",
+      "dart-code.flutter",
+      "nash.awesome-flutter-snippets",
+      "alexisvt.flutter-snippets",
+      "robert-brunhage.flutter-riverpod-snippets",
+      "usernamehw.errorlens",
+      "streetsidesoftware.code-spell-checker"
+    ],
+    "unwantedRecommendations": [
+      "vscjava.vscode-java-pack",
+      "ms-vscode.vscode-typescript-next"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "mobile (Debug)",
+        "cwd": "mobile",
+        "request": "launch",
+        "type": "dart"
+      },
+      {
+        "name": "mobile (Profile)",
+        "cwd": "mobile",
+        "request": "launch",
+        "type": "dart",
+        "flutterMode": "profile"
+      },
+      {
+        "name": "mobile (Release)",
+        "cwd": "mobile",
+        "request": "launch",
+        "type": "dart",
+        "flutterMode": "release"
+      }
+    ]
+  }
+}

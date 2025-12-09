@@ -1,0 +1,131 @@
+name: Refactoring
+description: Vorschlag für Code-Refactoring oder technische Verbesserungen
+title: "[REFACTOR]: "
+labels: ["refactor", "technical-debt"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Refactoring Request
+        Beschreiben Sie technische Verbesserungen am Code oder der Architektur.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Betroffene Komponente
+      options:
+        - Mobile App
+        - Admin Web
+        - Backend Server
+        - Shared Resources
+        - Build/CI/CD
+        - Dokumentation
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Betroffene Domain
+      options:
+        - User / Identity
+        - Action / Observation
+        - Plant Catalog
+        - Location / District
+        - Gamification
+        - Challenge
+        - Notification / Reminder
+        - Admin / Analytics
+        - Sync / Offline
+        - Infrastruktur
+        - Übergreifend
+    validations:
+      required: false
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Art des Refactorings
+      options:
+        - Code-Cleanup
+        - Architektur-Verbesserung
+        - Performance-Optimierung
+        - Dependency-Update
+        - Test-Coverage
+        - Dokumentation
+        - DDD-Anpassung
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-situation
+    attributes:
+      label: Aktuelle Situation
+      description: Was ist der aktuelle Zustand? Was sind die Probleme?
+      placeholder: Beschreiben Sie den aktuellen Code oder die Architektur...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-changes
+    attributes:
+      label: Vorgeschlagene Änderungen
+      description: Wie soll der Code/die Architektur verbessert werden?
+      placeholder: Beschreiben Sie die geplanten Änderungen...
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Vorteile
+      description: Was sind die Vorteile dieses Refactorings?
+      placeholder: |
+        - Bessere Wartbarkeit
+        - Höhere Performance
+        - Reduzierte Komplexität
+        - ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risiken / Breaking Changes
+      description: Gibt es Risiken oder Breaking Changes?
+      placeholder: Beschreiben Sie mögliche Risiken...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Umfang
+      options:
+        - Klein (< 1 Tag)
+        - Mittel (1-3 Tage)
+        - Groß (> 3 Tage)
+    validations:
+      required: false
+
+  - type: textarea
+    id: affected-files
+    attributes:
+      label: Betroffene Dateien / Module
+      description: Welche Dateien oder Module sind betroffen?
+      placeholder: |
+        - mobile/lib/features/action/
+        - server/src/main/java/com/urbanbloom/action/
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: testing
+    attributes:
+      label: Testing-Anforderungen
+      options:
+        - label: Unit Tests müssen angepasst werden
+        - label: Integration Tests erforderlich
+        - label: E2E Tests erforderlich
+        - label: Keine Tests betroffen

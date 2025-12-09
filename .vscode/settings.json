@@ -1,1 +1,89 @@
-{}
+{
+  // Globale Einstellungen für UrbanBloom Mono-Repository
+
+  // Editor
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "editor.rulers": [80, 120],
+  "editor.tabSize": 2,
+
+  // Files
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/build": true,
+    "**/dist": true,
+    "**/.dart_tool": true,
+    "**/.pub": true,
+    "**/.pub-cache": true,
+    "mobile/build": true,
+    "mobile/.flutter-plugins": true,
+    "mobile/.flutter-plugins-dependencies": true,
+    "admin-web/build": true,
+    "server/target": true,
+    "server/.mvn": true
+  },
+
+  "files.watcherExclude": {
+    "**/node_modules": true,
+    "**/build": true,
+    "**/dist": true,
+    "**/.dart_tool": true,
+    "mobile/build": true,
+    "admin-web/build": true,
+    "server/target": true
+  },
+
+  // Dart & Flutter
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.rulers": [80],
+    "editor.selectionHighlight": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off"
+  },
+
+  "dart.debugExternalPackageLibraries": false,
+  "dart.debugSdkLibraries": false,
+  "dart.analysisExcludedFolders": [
+    "**/build/**",
+    "**/.dart_tool/**",
+    "**/ios/Pods/**",
+    "**/android/.gradle/**"
+  ],
+
+  // Java & Spring Boot
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java",
+    "editor.tabSize": 4
+  },
+
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.saveActions.organizeImports": true,
+  "java.compile.nullAnalysis.mode": "automatic",
+
+  "spring-boot.ls.java.home": "",
+
+  // ESLint (falls später TypeScript/JavaScript benötigt wird)
+  "eslint.useFlatConfig": true,
+
+  // Git
+  "git.ignoreLimitWarning": true,
+
+  // Search
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/build": true,
+    "**/dist": true,
+    "**/.dart_tool": true,
+    "**/coverage": true,
+    "mobile/build": true,
+    "admin-web/build": true,
+    "server/target": true
+  }
+}

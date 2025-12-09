@@ -1,0 +1,112 @@
+name: Bug Report
+description: Melden Sie einen Fehler in UrbanBloom
+title: "[BUG]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report
+        Bitte beschreiben Sie den Fehler so detailliert wie möglich.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Betroffene Komponente
+      description: In welchem Teil der Anwendung tritt der Fehler auf?
+      options:
+        - Mobile App
+        - Admin Web
+        - Backend Server
+        - Übergreifend
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Betroffene Domain
+      options:
+        - User / Identity
+        - Action / Observation
+        - Plant Catalog
+        - Location / District
+        - Gamification
+        - Challenge
+        - Notification / Reminder
+        - Admin / Analytics
+        - Sync / Offline
+        - Unbekannt
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Fehlerbeschreibung
+      description: Was ist passiert?
+      placeholder: Beschreiben Sie den Fehler...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Schritte zur Reproduktion
+      description: Wie kann der Fehler reproduziert werden?
+      placeholder: |
+        1. Gehe zu '...'
+        2. Klicke auf '...'
+        3. Scrolle nach unten zu '...'
+        4. Beobachte Fehler
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Erwartetes Verhalten
+      description: Was sollte stattdessen passieren?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Tatsächliches Verhalten
+      description: Was passiert tatsächlich?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Schweregrad
+      options:
+        - Critical (App nicht nutzbar)
+        - High (Wichtige Funktion betroffen)
+        - Medium (Funktion eingeschränkt)
+        - Low (Kleine Störung)
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Umgebung
+      description: Auf welchem System tritt der Fehler auf?
+      placeholder: |
+        - OS: [z.B. iOS 17, Android 14, macOS]
+        - Browser: [falls Web, z.B. Chrome 120]
+        - App Version: [z.B. 1.0.0]
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Screenshots
+      description: Fügen Sie relevante Logs oder Screenshots hinzu
+    validations:
+      required: false

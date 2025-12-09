@@ -1,0 +1,95 @@
+{
+  // Admin Web Workspace - Für Flutter Web Admin-Oberfläche
+  // Verwendung: Fokussierte Entwicklung an der Admin-Webanwendung
+  // Öffnen: code urbanbloom-web.code-workspace
+  "folders": [
+    {
+      "path": "admin-web",
+      "name": "Admin Web"
+    },
+    {
+      "path": "shared-resources",
+      "name": "Shared Resources"
+    }
+  ],
+  "settings": {
+    // Web-spezifische Einstellungen
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/.dart_tool": true,
+      "**/build": true,
+      "**/.flutter-plugins": true,
+      "**/.flutter-plugins-dependencies": true,
+      // Andere Projekt-Ordner ausblenden
+      "../mobile": true,
+      "../server": true
+    },
+    // Dart & Flutter Einstellungen
+    "[dart]": {
+      "editor.formatOnSave": true,
+      "editor.formatOnType": true,
+      "editor.rulers": [
+        80,
+        120
+      ],
+      "editor.selectionHighlight": false,
+      "editor.suggestSelection": "first",
+      "editor.tabCompletion": "onlySnippets",
+      "editor.wordBasedSuggestions": "off"
+    },
+    "dart.flutterSdkPath": "",
+    "dart.debugExternalPackageLibraries": false,
+    "dart.debugSdkLibraries": false,
+    "dart.analysisExcludedFolders": [
+      "**/build/**",
+      "**/.dart_tool/**"
+    ],
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dart-code.dart-code",
+      "dart-code.flutter",
+      "nash.awesome-flutter-snippets",
+      "alexisvt.flutter-snippets",
+      "usernamehw.errorlens",
+      "streetsidesoftware.code-spell-checker",
+      "ms-vscode.live-server"
+    ],
+    "unwantedRecommendations": [
+      "vscjava.vscode-java-pack"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "admin-web (Chrome)",
+        "cwd": "admin-web",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "chrome"
+      },
+      {
+        "name": "admin-web (Edge)",
+        "cwd": "admin-web",
+        "request": "launch",
+        "type": "dart",
+        "deviceId": "edge"
+      },
+      {
+        "name": "admin-web (Profile)",
+        "cwd": "admin-web",
+        "request": "launch",
+        "type": "dart",
+        "flutterMode": "profile",
+        "deviceId": "chrome"
+      }
+    ]
+  }
+}

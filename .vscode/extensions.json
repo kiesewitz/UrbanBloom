@@ -1,1 +1,32 @@
-{}
+{
+  "recommendations": [
+    // GitHub & Git
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+
+    // Flutter & Dart (für mobile und admin-web)
+    "dart-code.dart-code",
+    "dart-code.flutter",
+
+    // Java & Spring Boot (für server)
+    "vscjava.vscode-java-pack",
+    "vscjava.vscode-spring-initializr",
+    "vscjava.vscode-spring-boot-dashboard",
+    "vmware.vscode-spring-boot",
+    "vscjava.vscode-maven",
+
+    // Allgemeine Entwickler-Tools
+    "editorconfig.editorconfig",
+    "streetsidesoftware.code-spell-checker",
+    "ms-vscode.live-server",
+
+    // YAML & JSON
+    "redhat.vscode-yaml",
+    "esbenp.prettier-vscode",
+
+    // Markdown
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint"
+  ]
+}

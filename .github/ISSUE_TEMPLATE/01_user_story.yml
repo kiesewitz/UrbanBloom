@@ -1,0 +1,78 @@
+name: User Story
+description: Beschreibung einer neuen User Story für UrbanBloom
+title: "[USER STORY]: "
+labels: ["user-story", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## User Story Template
+        Beschreiben Sie eine neue User Story aus Nutzersicht.
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      description: Zu welcher Domain gehört diese User Story?
+      options:
+        - User / Identity
+        - Action / Observation
+        - Plant Catalog
+        - Location / District
+        - Gamification
+        - Challenge
+        - Notification / Reminder
+        - Admin / Analytics
+        - Sync / Offline
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: User Story Beschreibung
+      description: "Als [Rolle] möchte ich [Funktion], damit [Nutzen]"
+      placeholder: "Als Bürger möchte ich meine Begrünungsaktionen erfassen, damit ich Punkte sammeln kann."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Akzeptanzkriterien
+      description: Wann ist diese Story erfüllt?
+      placeholder: |
+        - [ ] Kriterium 1
+        - [ ] Kriterium 2
+        - [ ] Kriterium 3
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorität (MoSCoW)
+      options:
+        - MUST
+        - SHOULD
+        - COULD
+        - WONT
+    validations:
+      required: true
+
+  - type: input
+    id: story-points
+    attributes:
+      label: Story Points (Schätzung)
+      placeholder: "z.B. 3, 5, 8"
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Zusätzliche Notizen
+      description: Weitere Informationen, Konversationspunkte, technische Details
+    validations:
+      required: false

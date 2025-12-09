@@ -1,0 +1,89 @@
+{
+  // Server Workspace - Für Spring Boot Backend Entwicklung
+  // Verwendung: Fokussierte Entwicklung am Backend-Server
+  // Öffnen: code urbanbloom-server.code-workspace
+  "folders": [
+    {
+      "path": "server",
+      "name": "Backend Server"
+    },
+    {
+      "path": "shared-resources",
+      "name": "Shared Resources"
+    }
+  ],
+  "settings": {
+    // Server-spezifische Einstellungen
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/target": true,
+      "**/.mvn": true,
+      "**/.idea": true,
+      "**/*.iml": true,
+      // Andere Projekt-Ordner ausblenden
+      "../mobile": true,
+      "../admin-web": true
+    },
+    // Java Einstellungen
+    "[java]": {
+      "editor.defaultFormatter": "redhat.java",
+      "editor.tabSize": 4,
+      "editor.insertSpaces": true
+    },
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.saveActions.organizeImports": true,
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.format.settings.url": "",
+    "java.format.settings.profile": "",
+    // Spring Boot
+    "spring-boot.ls.problem.application-properties.enabled": true,
+    "spring-boot.ls.problem.application-yaml.enabled": true,
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "vscjava.vscode-java-pack",
+      "vscjava.vscode-spring-initializr",
+      "vscjava.vscode-spring-boot-dashboard",
+      "vmware.vscode-spring-boot",
+      "vscjava.vscode-maven",
+      "redhat.java",
+      "vscjava.vscode-java-debug",
+      "vscjava.vscode-java-test",
+      "vscjava.vscode-java-dependency",
+      "gabrielbb.vscode-lombok",
+      "streetsidesoftware.code-spell-checker"
+    ],
+    "unwantedRecommendations": [
+      "dart-code.dart-code",
+      "dart-code.flutter"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "java",
+        "name": "Spring Boot (Debug)",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "mainClass": "com.urbanbloom.UrbanBloomApplication",
+        "projectName": "urbanbloom-server",
+        "args": "",
+        "envFile": "${workspaceFolder}/.env"
+      },
+      {
+        "type": "java",
+        "name": "Spring Boot (Run)",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "mainClass": "com.urbanbloom.UrbanBloomApplication",
+        "projectName": "urbanbloom-server"
+      }
+    ]
+  }
+}

@@ -1,0 +1,108 @@
+name: Enhancement / Feature Request
+description: Schlagen Sie eine Verbesserung oder neue Funktion vor
+title: "[ENHANCEMENT]: "
+labels: ["enhancement", "needs-discussion"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Enhancement / Feature Request
+        Beschreiben Sie Ihre Idee für eine Verbesserung oder neue Funktion.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Art der Verbesserung
+      options:
+        - Neue Funktion
+        - Verbesserung bestehender Funktion
+        - Performance-Optimierung
+        - UX/UI Verbesserung
+        - Andere
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Betroffene Komponente
+      options:
+        - Mobile App
+        - Admin Web
+        - Backend Server
+        - Übergreifend
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Betroffene Domain
+      options:
+        - User / Identity
+        - Action / Observation
+        - Plant Catalog
+        - Location / District
+        - Gamification
+        - Challenge
+        - Notification / Reminder
+        - Admin / Analytics
+        - Sync / Offline
+        - Übergreifend
+    validations:
+      required: false
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: Welches Problem würde dies lösen?
+      placeholder: Beschreiben Sie das Problem oder die Motivation...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Vorgeschlagene Lösung
+      description: Wie könnte die Verbesserung aussehen?
+      placeholder: Beschreiben Sie Ihren Lösungsansatz...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Lösungen
+      description: Gibt es alternative Ansätze?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorität (Ihre Einschätzung)
+      options:
+        - MUST (Kritisch)
+        - SHOULD (Wichtig)
+        - COULD (Wünschenswert)
+        - WONT (Niedrig)
+    validations:
+      required: false
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups / Beispiele
+      description: Fügen Sie Mockups, Screenshots oder Links zu Beispielen hinzu
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Zusätzlicher Kontext
+      description: Weitere Informationen, die hilfreich sein könnten
+    validations:
+      required: false
