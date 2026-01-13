@@ -1,0 +1,1752 @@
+openapi: 3.0.3
+info:
+  title: UrbanBloom API
+  version: 1.0.0
+  description: |
+    **UrbanBloom** is a mobile and web application for documenting and gamifying environmental
+    actions in cities. This API follows a Domain-Driven Design (DDD) approach with 9 bounded contexts.
+
+    ## Architecture
+    - RESTful API with OpenAPI 3.0 specification
+    - JWT-based authentication
+    - Event-driven communication between bounded contexts
+    - Offline-first support via sync endpoints
+
+    ## Bounded Contexts
+    1. User/Identity - Registration, authentication, privacy
+    2. Action/Observation - Green action documentation and verification
+    3. Plant Catalog - Central plant database
+    4. Location/District - Location and district management
+    5. Gamification - Points, badges, leaderboards
+    6. Challenge - City-wide challenges and campaigns
+    7. Notification/Reminder - Push notifications and reminders
+    8. Admin/Analytics - Reports and analytics for city administration
+    9. Sync/Offline - Offline-first data synchronization
+
+  contact:
+    name: UrbanBloom Team
+    email: team@urbanbloom.example
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.urbanbloom.example/v1
+    description: Production server
+  - url: https://api-dev.urbanbloom.example/v1
+    description: Development server
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: User registration and authentication
+  - name: Users
+    description: User profile and privacy management
+  - name: Actions
+    description: Green action documentation and verification
+  - name: Plants
+    description: Plant catalog and search
+  - name: Locations
+    description: Location and district management
+  - name: Gamification
+    description: Points, badges, and leaderboards
+  - name: Challenges
+    description: City-wide challenges and campaigns
+  - name: Notifications
+    description: Push notifications and reminders
+  - name: Admin
+    description: Analytics and administration (admin only)
+  - name: Sync
+    description: Offline data synchronization
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ===== 1. User / Identity Context =====
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      description: Creates a new user account with email and password
+      security: []  # No auth required for registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login with email and password
+      description: Authenticates user and returns JWT tokens
+      security: []  # No auth required for login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: Exchanges refresh token for new access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{userId}:
+    get:
+      tags: [Users]
+      summary: Get user profile
+      description: Retrieves user profile information
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Users]
+      summary: Update user profile
+      description: Updates user profile information (name, bio, etc.)
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Users]
+      summary: Delete user account
+      description: Anonymizes user data (GDPR compliance)
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '204':
+          description: User anonymized successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/consent:
+    put:
+      tags: [Users]
+      summary: Update user consent
+      description: Updates privacy consent status
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentRequest'
+      responses:
+        '200':
+          description: Consent updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentStatus'
+
+  # ===== 2. Action / Observation Context =====
+
+  /actions:
+    get:
+      tags: [Actions]
+      summary: List actions
+      description: Retrieves paginated list of actions (filtered by user or public)
+      parameters:
+        - name: userId
+          in: query
+          description: Filter by user ID
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [DRAFT, VALIDATED, REJECTED, SYNCED]
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of actions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionPage'
+
+    post:
+      tags: [Actions]
+      summary: Create action
+      description: Documents a new green action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateActionRequest'
+      responses:
+        '201':
+          description: Action created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Action'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /actions/{actionId}:
+    get:
+      tags: [Actions]
+      summary: Get action details
+      description: Retrieves detailed information about an action
+      parameters:
+        - $ref: '#/components/parameters/ActionIdPath'
+      responses:
+        '200':
+          description: Action details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Action'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Actions]
+      summary: Update action
+      description: Updates action details (only if DRAFT or owner)
+      parameters:
+        - $ref: '#/components/parameters/ActionIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateActionRequest'
+      responses:
+        '200':
+          description: Action updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Action'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /actions/{actionId}/verify:
+    post:
+      tags: [Actions]
+      summary: Verify action
+      description: Submits action for verification (triggers points calculation)
+      parameters:
+        - $ref: '#/components/parameters/ActionIdPath'
+      responses:
+        '200':
+          description: Action verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Action'
+        '400':
+          description: Action cannot be verified (e.g., missing photo)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /actions/{actionId}/photos:
+    post:
+      tags: [Actions]
+      summary: Upload action photo
+      description: Uploads a photo for an action
+      parameters:
+        - $ref: '#/components/parameters/ActionIdPath'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo]
+              properties:
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Photo uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photoUrl:
+                    type: string
+                    format: uri
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ===== 3. Plant Catalog Context =====
+
+  /plants:
+    get:
+      tags: [Plants]
+      summary: List plants
+      description: Retrieves paginated list of plants from catalog
+      parameters:
+        - name: search
+          in: query
+          description: Search by name (German or scientific)
+          schema:
+            type: string
+        - name: climate
+          in: query
+          description: Filter by climate zone
+          schema:
+            type: string
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of plants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantPage'
+
+  /plants/{plantId}:
+    get:
+      tags: [Plants]
+      summary: Get plant details
+      description: Retrieves detailed information about a plant
+      parameters:
+        - name: plantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Plant details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plant'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /plants/search:
+    get:
+      tags: [Plants]
+      summary: Search plants
+      description: Full-text search across plant names and descriptions
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+            minLength: 2
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantPage'
+
+  # ===== 4. Location / District Context =====
+
+  /locations:
+    get:
+      tags: [Locations]
+      summary: Search locations
+      description: Geocoding and reverse geocoding
+      parameters:
+        - name: lat
+          in: query
+          description: Latitude for reverse geocoding
+          schema:
+            type: number
+            format: double
+        - name: lon
+          in: query
+          description: Longitude for reverse geocoding
+          schema:
+            type: number
+            format: double
+        - name: query
+          in: query
+          description: Address query for geocoding
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Location results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+
+  /districts:
+    get:
+      tags: [Locations]
+      summary: List districts
+      description: Retrieves all available city districts
+      responses:
+        '200':
+          description: List of districts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/District'
+
+  /districts/{districtId}:
+    get:
+      tags: [Locations]
+      summary: Get district details
+      description: Retrieves district information and boundaries
+      parameters:
+        - name: districtId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: District details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/District'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /districts/{districtId}/stats:
+    get:
+      tags: [Locations]
+      summary: Get district statistics
+      description: Retrieves aggregated statistics for a district
+      parameters:
+        - name: districtId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: District statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DistrictStats'
+
+  # ===== 5. Gamification Context =====
+
+  /users/{userId}/points:
+    get:
+      tags: [Gamification]
+      summary: Get user points
+      description: Retrieves user's current points and history
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '200':
+          description: User points
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPoints'
+
+  /users/{userId}/badges:
+    get:
+      tags: [Gamification]
+      summary: Get user badges
+      description: Retrieves all badges earned by user
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '200':
+          description: User badges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Badge'
+
+  /leaderboard:
+    get:
+      tags: [Gamification]
+      summary: Get leaderboard
+      description: Retrieves ranked list of top users
+      parameters:
+        - name: scope
+          in: query
+          description: Leaderboard scope
+          schema:
+            type: string
+            enum: [GLOBAL, DISTRICT, CITY]
+            default: GLOBAL
+        - name: districtId
+          in: query
+          description: District ID (required if scope=DISTRICT)
+          schema:
+            type: string
+            format: uuid
+        - name: timeframe
+          in: query
+          description: Time period
+          schema:
+            type: string
+            enum: [WEEK, MONTH, YEAR, ALL_TIME]
+            default: MONTH
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Leaderboard rankings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Leaderboard'
+
+  # ===== 6. Challenge Context =====
+
+  /challenges:
+    get:
+      tags: [Challenges]
+      summary: List challenges
+      description: Retrieves active and upcoming challenges
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [ACTIVE, UPCOMING, COMPLETED]
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of challenges
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengePage'
+
+  /challenges/{challengeId}:
+    get:
+      tags: [Challenges]
+      summary: Get challenge details
+      description: Retrieves detailed challenge information
+      parameters:
+        - name: challengeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Challenge details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Challenge'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /challenges/{challengeId}/participate:
+    post:
+      tags: [Challenges]
+      summary: Join challenge
+      description: Enrolls user in a challenge
+      parameters:
+        - name: challengeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successfully joined challenge
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeParticipation'
+        '400':
+          description: Cannot join challenge (e.g., already ended)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /challenges/{challengeId}/progress:
+    get:
+      tags: [Challenges]
+      summary: Get challenge progress
+      description: Retrieves user's progress in challenge
+      parameters:
+        - name: challengeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Challenge progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeProgress'
+
+  # ===== 7. Notification Context =====
+
+  /notifications:
+    post:
+      tags: [Notifications]
+      summary: Register device for push notifications
+      description: Registers device token for push notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDeviceRequest'
+      responses:
+        '200':
+          description: Device registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deviceId:
+                    type: string
+                    format: uuid
+
+  /users/{userId}/notifications:
+    get:
+      tags: [Notifications]
+      summary: Get user notifications
+      description: Retrieves user's notification history
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+        - name: unreadOnly
+          in: query
+          description: Filter to unread notifications only
+          schema:
+            type: boolean
+            default: false
+        - $ref: '#/components/parameters/CursorParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPage'
+
+  /notifications/{notificationId}/read:
+    put:
+      tags: [Notifications]
+      summary: Mark notification as read
+      description: Updates notification read status
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Notification marked as read
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ===== 8. Admin / Analytics Context =====
+
+  /analytics/actions:
+    get:
+      tags: [Admin]
+      summary: Get action analytics
+      description: Retrieves aggregated action statistics (admin only)
+      security:
+        - BearerAuth: [admin]
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: districtId
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Action analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionAnalytics'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /analytics/users:
+    get:
+      tags: [Admin]
+      summary: Get user analytics
+      description: Retrieves user statistics and engagement metrics (admin only)
+      security:
+        - BearerAuth: [admin]
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: User analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAnalytics'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /analytics/districts:
+    get:
+      tags: [Admin]
+      summary: Get district analytics
+      description: Retrieves comparative district statistics (admin only)
+      security:
+        - BearerAuth: [admin]
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: District analytics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DistrictAnalytics'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ===== 9. Sync / Offline Context =====
+
+  /sync/push:
+    post:
+      tags: [Sync]
+      summary: Push local changes
+      description: Uploads offline changes to server
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncPushRequest'
+      responses:
+        '200':
+          description: Changes synced
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncPushResponse'
+        '409':
+          description: Conflict detected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncConflict'
+
+  /sync/pull:
+    get:
+      tags: [Sync]
+      summary: Pull remote changes
+      description: Downloads server changes since last sync
+      parameters:
+        - name: lastSyncTimestamp
+          in: query
+          required: true
+          description: Client's last successful sync timestamp
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Remote changes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncPullResponse'
+
+  /sync/status:
+    get:
+      tags: [Sync]
+      summary: Get sync status
+      description: Retrieves sync health and last sync time
+      responses:
+        '200':
+          description: Sync status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncStatus'
+
+# ===== Components =====
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token obtained from /auth/login or /auth/register
+
+  parameters:
+    UserIdPath:
+      name: userId
+      in: path
+      required: true
+      description: User ID
+      schema:
+        type: string
+        format: uuid
+
+    ActionIdPath:
+      name: actionId
+      in: path
+      required: true
+      description: Action ID
+      schema:
+        type: string
+        format: uuid
+
+    CursorParam:
+      name: cursor
+      in: query
+      description: Pagination cursor for next page
+      schema:
+        type: string
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Maximum number of items to return
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorized:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # ===== Common Schemas =====
+
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code
+          example: USER_NOT_FOUND
+        message:
+          type: string
+          description: Human-readable error message
+          example: User with ID '123' not found
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+    PaginationInfo:
+      type: object
+      properties:
+        nextCursor:
+          type: string
+          description: Cursor for next page (null if last page)
+          nullable: true
+        hasMore:
+          type: boolean
+          description: Whether more items exist
+
+    # ===== User / Identity Schemas =====
+
+    RegisterUserRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Max Mustermann
+        email:
+          type: string
+          format: email
+          example: max@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: SecurePass123!
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    AuthResponse:
+      type: object
+      required: [accessToken, refreshToken, user]
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token (expires in 15 minutes)
+        refreshToken:
+          type: string
+          description: Refresh token (expires in 7 days)
+        tokenType:
+          type: string
+          default: Bearer
+        expiresIn:
+          type: integer
+          description: Access token expiry in seconds
+          example: 900
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      required: [userId, name, email, totalPoints, createdAt]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        bio:
+          type: string
+          maxLength: 500
+          nullable: true
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        totalPoints:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        consentStatus:
+          $ref: '#/components/schemas/ConsentStatus'
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        bio:
+          type: string
+          maxLength: 500
+
+    ConsentStatus:
+      type: object
+      properties:
+        analyticsConsent:
+          type: boolean
+        marketingConsent:
+          type: boolean
+        version:
+          type: string
+          example: v1.2
+        consentDate:
+          type: string
+          format: date-time
+
+    ConsentRequest:
+      type: object
+      required: [analyticsConsent, marketingConsent]
+      properties:
+        analyticsConsent:
+          type: boolean
+        marketingConsent:
+          type: boolean
+
+    # ===== Action / Observation Schemas =====
+
+    CreateActionRequest:
+      type: object
+      required: [plantVO, locationVO]
+      properties:
+        plantVO:
+          $ref: '#/components/schemas/PlantVO'
+        locationVO:
+          $ref: '#/components/schemas/LocationVO'
+        description:
+          type: string
+          maxLength: 1000
+        photoUrl:
+          type: string
+          format: uri
+          description: Photo URL (after upload via /actions/{id}/photos)
+
+    UpdateActionRequest:
+      type: object
+      properties:
+        plantVO:
+          $ref: '#/components/schemas/PlantVO'
+        locationVO:
+          $ref: '#/components/schemas/LocationVO'
+        description:
+          type: string
+          maxLength: 1000
+
+    Action:
+      type: object
+      required: [actionId, userId, plantVO, locationVO, status, createdAt]
+      properties:
+        actionId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        plantVO:
+          $ref: '#/components/schemas/PlantVO'
+        locationVO:
+          $ref: '#/components/schemas/LocationVO'
+        description:
+          type: string
+          nullable: true
+        photoUrl:
+          type: string
+          format: uri
+          nullable: true
+        status:
+          type: string
+          enum: [DRAFT, VALIDATED, REJECTED, SYNCED]
+        pointsAwarded:
+          type: integer
+          minimum: 0
+          description: Points earned (only set after verification)
+        createdAt:
+          type: string
+          format: date-time
+        verifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    ActionPage:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    PlantVO:
+      type: object
+      required: [plantId, name]
+      description: Compact plant value object embedded in Action
+      properties:
+        plantId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Apfelbaum
+        scientificName:
+          type: string
+          example: Malus domestica
+
+    LocationVO:
+      type: object
+      required: [latitude, longitude]
+      description: Compact location value object embedded in Action
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 52.520008
+        longitude:
+          type: number
+          format: double
+          example: 13.404954
+        address:
+          type: string
+          example: Alexanderplatz 1, 10178 Berlin
+        districtId:
+          type: string
+          format: uuid
+
+    # ===== Plant Catalog Schemas =====
+
+    Plant:
+      type: object
+      required: [plantId, nameDe, scientificName, climateZone]
+      properties:
+        plantId:
+          type: string
+          format: uuid
+        nameDe:
+          type: string
+          example: Apfelbaum
+        scientificName:
+          type: string
+          example: Malus domestica
+        description:
+          type: string
+        climateZone:
+          type: string
+          example: temperate
+        waterNeeds:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        sunlightNeeds:
+          type: string
+          enum: [SHADE, PARTIAL, FULL_SUN]
+        imageUrl:
+          type: string
+          format: uri
+
+    PlantPage:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Plant'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    # ===== Location / District Schemas =====
+
+    Location:
+      type: object
+      required: [latitude, longitude]
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        address:
+          type: string
+        city:
+          type: string
+        districtId:
+          type: string
+          format: uuid
+        districtName:
+          type: string
+
+    District:
+      type: object
+      required: [districtId, name, cityName]
+      properties:
+        districtId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Mitte
+        cityName:
+          type: string
+          example: Berlin
+        boundaries:
+          type: object
+          description: GeoJSON polygon of district boundaries
+          example: {"type": "Polygon", "coordinates": [[[13.3, 52.5], ...]]}
+
+    DistrictStats:
+      type: object
+      properties:
+        districtId:
+          type: string
+          format: uuid
+        totalActions:
+          type: integer
+        totalUsers:
+          type: integer
+        totalPoints:
+          type: integer
+        topPlants:
+          type: array
+          items:
+            type: object
+            properties:
+              plantName:
+                type: string
+              count:
+                type: integer
+
+    # ===== Gamification Schemas =====
+
+    UserPoints:
+      type: object
+      required: [userId, totalPoints, level]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        totalPoints:
+          type: integer
+        level:
+          type: integer
+          description: User level based on points
+        pointsToNextLevel:
+          type: integer
+        recentEarnings:
+          type: array
+          items:
+            type: object
+            properties:
+              actionId:
+                type: string
+                format: uuid
+              points:
+                type: integer
+              earnedAt:
+                type: string
+                format: date-time
+
+    Badge:
+      type: object
+      required: [badgeId, name, description, imageUrl, earnedAt]
+      properties:
+        badgeId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Tree Planter
+        description:
+          type: string
+          example: Planted 10 trees
+        imageUrl:
+          type: string
+          format: uri
+        category:
+          type: string
+          enum: [ACTION_COUNT, PLANT_TYPE, CONSISTENCY, CHALLENGE]
+        earnedAt:
+          type: string
+          format: date-time
+
+    Leaderboard:
+      type: object
+      required: [entries, timeframe, scope]
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaderboardEntry'
+        timeframe:
+          type: string
+          enum: [WEEK, MONTH, YEAR, ALL_TIME]
+        scope:
+          type: string
+          enum: [GLOBAL, DISTRICT, CITY]
+
+    LeaderboardEntry:
+      type: object
+      required: [rank, userId, name, points]
+      properties:
+        rank:
+          type: integer
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+        points:
+          type: integer
+        actionCount:
+          type: integer
+
+    # ===== Challenge Schemas =====
+
+    Challenge:
+      type: object
+      required: [challengeId, title, description, startDate, endDate, goalType, goalValue, status]
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: Grünes Berlin Oktober
+        description:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        goalType:
+          type: string
+          enum: [ACTION_COUNT, POINTS, PLANT_TYPE]
+        goalValue:
+          type: integer
+          description: Target value to achieve (e.g., 1000 actions)
+        status:
+          type: string
+          enum: [UPCOMING, ACTIVE, COMPLETED]
+        participantCount:
+          type: integer
+        districtId:
+          type: string
+          format: uuid
+          description: District-specific challenge (null for city-wide)
+          nullable: true
+
+    ChallengePage:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Challenge'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    ChallengeParticipation:
+      type: object
+      required: [challengeId, userId, joinedAt]
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        joinedAt:
+          type: string
+          format: date-time
+
+    ChallengeProgress:
+      type: object
+      required: [challengeId, userId, currentValue, goalValue, percentage]
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        currentValue:
+          type: integer
+          description: User's current progress (e.g., 50 actions)
+        goalValue:
+          type: integer
+          description: Challenge target (e.g., 100 actions)
+        percentage:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+        rank:
+          type: integer
+          description: User's rank among challenge participants
+
+    # ===== Notification Schemas =====
+
+    RegisterDeviceRequest:
+      type: object
+      required: [deviceToken, platform]
+      properties:
+        deviceToken:
+          type: string
+          description: FCM or APNs device token
+        platform:
+          type: string
+          enum: [ANDROID, IOS, WEB]
+
+    Notification:
+      type: object
+      required: [notificationId, userId, type, title, message, createdAt, isRead]
+      properties:
+        notificationId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [ACTION_VERIFIED, BADGE_EARNED, CHALLENGE_STARTED, REMINDER, SYSTEM]
+        title:
+          type: string
+        message:
+          type: string
+        actionUrl:
+          type: string
+          description: Deep link to relevant screen
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        isRead:
+          type: boolean
+
+    NotificationPage:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    # ===== Admin / Analytics Schemas =====
+
+    ActionAnalytics:
+      type: object
+      properties:
+        totalActions:
+          type: integer
+        verifiedActions:
+          type: integer
+        rejectedActions:
+          type: integer
+        totalPoints:
+          type: integer
+        actionsByDay:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              count:
+                type: integer
+        topPlants:
+          type: array
+          items:
+            type: object
+            properties:
+              plantName:
+                type: string
+              count:
+                type: integer
+
+    UserAnalytics:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        newUsers:
+          type: integer
+          description: New users in time period
+        activeUsers:
+          type: integer
+          description: Users with activity in time period
+        usersByDay:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              newUsers:
+                type: integer
+              activeUsers:
+                type: integer
+
+    DistrictAnalytics:
+      type: object
+      properties:
+        districtId:
+          type: string
+          format: uuid
+        districtName:
+          type: string
+        totalActions:
+          type: integer
+        totalUsers:
+          type: integer
+        totalPoints:
+          type: integer
+        rank:
+          type: integer
+          description: District rank by actions
+
+    # ===== Sync / Offline Schemas =====
+
+    SyncPushRequest:
+      type: object
+      required: [changes, lastSyncTimestamp]
+      properties:
+        changes:
+          type: array
+          items:
+            type: object
+            properties:
+              entityType:
+                type: string
+                enum: [ACTION, USER, NOTIFICATION]
+              entityId:
+                type: string
+                format: uuid
+              operation:
+                type: string
+                enum: [CREATE, UPDATE, DELETE]
+              data:
+                type: object
+                description: Entity data (structure varies by type)
+              clientTimestamp:
+                type: string
+                format: date-time
+        lastSyncTimestamp:
+          type: string
+          format: date-time
+
+    SyncPushResponse:
+      type: object
+      required: [accepted, conflicts]
+      properties:
+        accepted:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Entity IDs successfully synced
+        conflicts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncConflict'
+        serverTimestamp:
+          type: string
+          format: date-time
+
+    SyncPullResponse:
+      type: object
+      required: [changes, serverTimestamp]
+      properties:
+        changes:
+          type: array
+          items:
+            type: object
+            properties:
+              entityType:
+                type: string
+                enum: [ACTION, USER, NOTIFICATION, BADGE, CHALLENGE]
+              entityId:
+                type: string
+                format: uuid
+              operation:
+                type: string
+                enum: [CREATE, UPDATE, DELETE]
+              data:
+                type: object
+              serverTimestamp:
+                type: string
+                format: date-time
+        serverTimestamp:
+          type: string
+          format: date-time
+          description: Use this for next sync
+
+    SyncConflict:
+      type: object
+      required: [entityId, entityType, reason]
+      properties:
+        entityId:
+          type: string
+          format: uuid
+        entityType:
+          type: string
+        reason:
+          type: string
+          enum: [NEWER_VERSION_EXISTS, ENTITY_DELETED, VALIDATION_FAILED]
+        serverVersion:
+          type: object
+          description: Current server version of entity
+        clientVersion:
+          type: object
+          description: Client's version that caused conflict
+
+    SyncStatus:
+      type: object
+      required: [lastSyncTimestamp, pendingChanges, healthy]
+      properties:
+        lastSyncTimestamp:
+          type: string
+          format: date-time
+        pendingChanges:
+          type: integer
+          description: Number of local changes not yet synced
+        healthy:
+          type: boolean
+          description: Whether sync is functioning normally

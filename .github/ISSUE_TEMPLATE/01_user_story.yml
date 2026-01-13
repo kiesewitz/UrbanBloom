@@ -76,3 +76,72 @@ body:
       description: Weitere Informationen, Konversationspunkte, technische Details
     validations:
       required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 🤖 KI-Assistenz Hinweise
+
+        **Verwende die spezialisierten GitHub Copilot Agents für diese Story:**
+
+  - type: dropdown
+    id: recommended-agents
+    attributes:
+      label: Empfohlene Agents
+      description: Welche AI Agents sollten bei der Umsetzung helfen?
+      multiple: true
+      options:
+        - "@backend-ddd - Domain-Modellierung (Aggregates, Value Objects, Events)"
+        - "@backend-business-logic - Use Cases und API-Implementierung"
+        - "@mobile-cdd - Flutter Mobile UI (Atomic Design)"
+        - "@web-admin-cdd - Flutter Web Admin UI"
+        - "@project-manager - Planung und Task-Breakdown"
+        - "@documentation - Dokumentation und Diagramme"
+    validations:
+      required: false
+
+  - type: textarea
+    id: prompt-suggestions
+    attributes:
+      label: Vorgeschlagene Prompts
+      description: Hilfreiche Prompts für die Umsetzung (siehe docs/prompts/)
+      placeholder: |
+        Backend:
+        - "Erstelle User Aggregate mit Email Value Object"
+        - "Implementiere RegisterUser Use Case mit Event Publishing"
+
+        Frontend:
+        - "Erstelle ActionCard Organism mit Bild, Titel, Punkten"
+        - "Implementiere ActionListPage mit Riverpod Provider"
+      value: |
+        **Backend Prompts** (siehe `docs/prompts/backend-prompts.md`):
+        - [Aggregate erstellen]
+        - [Use Case implementieren]
+        - [REST Endpoint hinzufügen]
+
+        **Frontend Prompts** (siehe `docs/prompts/frontend-prompts.md`):
+        - [Atom/Molecule/Organism erstellen]
+        - [Page mit Riverpod Provider]
+        - [Widget Tests schreiben]
+
+        **Workflow Prompts** (siehe `docs/prompts/workflow-prompts.md`):
+        - [User Story in Tasks aufteilen]
+        - [Changelog generieren]
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ### 📚 Hilfreiche Ressourcen:
+        - **AI Environment Guide**: `docs/ai-environment-guide.md`
+        - **Prompt Kataloge**: `docs/prompts/`
+        - **Backend Instructions**: `.github/instructions/backend-instructions.md`
+        - **Frontend Mobile**: `.github/instructions/frontend-mobile-instructions.md`
+        - **Frontend Web**: `.github/instructions/frontend-web-instructions.md`
+        - **OpenAPI Spec**: `openapi/urbanbloom-api-v1.yaml`
+        - **Domain Model**: `shared-resources/documentation/domain-model-description-urbanbloom.md`
+
+        **Workflow-Tipp**: Starte mit `@project-manager` um die Story in Subtasks aufzuteilen!

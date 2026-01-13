@@ -72,7 +72,6 @@
         "isDefault": false
       }
     },
-
     // ========== Admin Web Tasks ==========
     {
       "label": "web: pub get",
@@ -144,7 +143,6 @@
         "isDefault": false
       }
     },
-
     // ========== Server Tasks ==========
     {
       "label": "server: mvn clean install",
@@ -153,7 +151,9 @@
       "options": {
         "cwd": "${workspaceFolder}/server"
       },
-      "problemMatcher": ["$maven"],
+      "problemMatcher": [
+        "$maven"
+      ],
       "group": {
         "kind": "build",
         "isDefault": false
@@ -172,7 +172,9 @@
       "options": {
         "cwd": "${workspaceFolder}/server"
       },
-      "problemMatcher": ["$maven"],
+      "problemMatcher": [
+        "$maven"
+      ],
       "group": {
         "kind": "test",
         "isDefault": false
@@ -191,7 +193,9 @@
       "options": {
         "cwd": "${workspaceFolder}/server"
       },
-      "problemMatcher": ["$maven"],
+      "problemMatcher": [
+        "$maven"
+      ],
       "group": {
         "kind": "test",
         "isDefault": false
@@ -210,10 +214,227 @@
       "options": {
         "cwd": "${workspaceFolder}/server"
       },
-      "problemMatcher": ["$maven"],
+      "problemMatcher": [
+        "$maven"
+      ],
       "group": {
         "kind": "test",
         "isDefault": false
+      }
+    },
+    // ========== OpenAPI Tasks ==========
+    {
+      "label": "openapi: validate",
+      "type": "shell",
+      "command": "npx @openapitools/openapi-generator-cli validate -i openapi/urbanbloom-api-v1.yaml",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "openapi: generate backend client",
+      "type": "shell",
+      "command": "npx @openapitools/openapi-generator-cli generate -i openapi/urbanbloom-api-v1.yaml -g spring -o server/target/generated-sources/openapi --additional-properties=interfaceOnly=true,useSpringBoot3=true",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "openapi: generate mobile client",
+      "type": "shell",
+      "command": "npx @openapitools/openapi-generator-cli generate -i openapi/urbanbloom-api-v1.yaml -g dart-dio -o mobile/lib/data/api/generated --additional-properties=pubName=urbanbloom_api",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "openapi: generate web client",
+      "type": "shell",
+      "command": "npx @openapitools/openapi-generator-cli generate -i openapi/urbanbloom-api-v1.yaml -g dart-dio -o admin-web/lib/data/api/generated --additional-properties=pubName=urbanbloom_api",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "openapi: generate docs",
+      "type": "shell",
+      "command": "npx @openapitools/openapi-generator-cli generate -i openapi/urbanbloom-api-v1.yaml -g html2 -o docs/api",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "openapi: run all",
+      "dependsOn": [
+        "openapi: validate",
+        "openapi: generate backend client",
+        "openapi: generate mobile client",
+        "openapi: generate web client",
+        "openapi: generate docs"
+      ],
+      "dependsOrder": "sequence",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    // ========== CI/CD Tasks ==========
+    {
+      "label": "ci: validate all",
+      "dependsOn": [
+        "openapi: validate",
+        "server: mvn verify",
+        "mobile: test",
+        "web: test"
+      ],
+      "dependsOrder": "sequence",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ci: build all",
+      "dependsOn": [
+        "server: mvn clean install",
+        "mobile: build apk",
+        "web: build"
+      ],
+      "dependsOrder": "parallel",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    // ========== Utility Tasks ==========
+    {
+      "label": "util: install dependencies (all)",
+      "dependsOn": [
+        "mobile: pub get",
+        "web: pub get"
+      ],
+      "dependsOrder": "parallel",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "util: clean all",
+      "type": "shell",
+      "command": "cd mobile && flutter clean && cd ../admin-web && flutter clean && cd ../server && mvn clean",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "util: start postgres",
+      "type": "shell",
+      "command": "docker run -d --name urbanbloom-postgres -p 5432:5432 -e POSTGRES_DB=urbanbloom -e POSTGRES_USER=urbanbloom -e POSTGRES_PASSWORD=secret postgres:15",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "util: stop postgres",
+      "type": "shell",
+      "command": "docker stop urbanbloom-postgres && docker rm urbanbloom-postgres",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
       }
     }
   ]
