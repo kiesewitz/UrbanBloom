@@ -1,6 +1,8 @@
 # Frontend Development Prompts Catalog - UrbanBloom
 
-**Purpose**: Reusable prompts for Flutter mobile and web development with CDD patterns  
+**Purpose**: 
+- Reusable prompts for Flutter mobile web development with CDD patterns
+- Reusable prompts for React and Next.js web development
 **Target Users**: Frontend developers (mobile and web)  
 **Usage**: Copy prompt, fill placeholders, use with Mobile CDD Agent or Web Admin CDD Agent
 

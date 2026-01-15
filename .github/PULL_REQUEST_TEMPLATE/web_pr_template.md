@@ -35,7 +35,7 @@ Closes #
 <!-- Fügen Sie Screenshots oder Videos der UI-Änderungen hinzu -->
 
 ### Checkliste
-- [ ] Code folgt den Coding Standards (Dart/Flutter)
+- [ ] Code folgt den Coding Standards
 - [ ] Selbst-Review durchgeführt
 - [ ] Code ist kommentiert (besonders komplexe Bereiche)
 - [ ] Dokumentation aktualisiert
