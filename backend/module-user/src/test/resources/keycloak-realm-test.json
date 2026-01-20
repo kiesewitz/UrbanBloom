@@ -1,0 +1,57 @@
+{
+  "realm": "schoollibrary-test",
+  "enabled": true,
+  "registrationAllowed": true,
+  "verifyEmail": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "STUDENT",
+        "description": "Student role"
+      },
+      {
+        "name": "TEACHER",
+        "description": "Teacher role"
+      },
+      {
+        "name": "LIBRARIAN",
+        "description": "Librarian role"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrator role"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "schoollibrary-app",
+      "enabled": true,
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"],
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [],
+  "smtpServer": {
+    "host": "greenmail",
+    "port": "3025",
+    "from": "noreply@schule.de",
+    "auth": "false",
+    "replyTo": "noreply@schule.de"
+  },
+  "eventsEnabled": false,
+  "eventsListeners": ["jboss-logging"],
+  "adminEventsEnabled": false,
+  "adminEventsDetailsEnabled": false
+}

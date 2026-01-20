@@ -1,0 +1,196 @@
+@startuml user-context-domain-model
+!define AGGREGATE_BG #90EE90
+!define ENTITY_BG #ADD8E6
+!define VALUE_OBJECT_BG #FFFFE0
+!define SERVICE_BG #F5DEB3
+!define APP_SERVICE_BG #F0F8FF
+!define REPOSITORY_BG #D3D3D3
+
+skinparam class {
+    BackgroundColor<<AggregateRoot>> AGGREGATE_BG
+    BackgroundColor<<Entity>> ENTITY_BG
+    BackgroundColor<<ValueObject>> VALUE_OBJECT_BG
+    BackgroundColor<<DomainService>> SERVICE_BG
+    BackgroundColor<<ApplicationService>> APP_SERVICE_BG
+    BackgroundColor<<Repository>> REPOSITORY_BG
+    BorderColor #505050
+    ArrowColor #333333
+}
+
+title USER CONTEXT - Domain Model (Generic Subdomain)
+
+package "Application Layer" {
+    class AuthenticationApplicationService <<ApplicationService>> {
+        + login(command): AuthenticationResult
+        + refreshToken(command): AuthenticationResult
+        + getAllowedDomains(): List<String>
+    }
+
+    class UserRegistrationService <<ApplicationService>> {
+        + registerUser(command): RegistrationResult
+    }
+
+    class UserProfileApplicationService <<ApplicationService>> {
+        + getCurrentUserProfile(): UserProfile
+    }
+}
+
+package "User Context" {
+
+    ' ========== USER PROFILE AGGREGATE ==========
+    class UserProfile <<AggregateRoot>> {
+        + userId: UUID
+        + active: boolean
+        --
+        + {static} create(externalUserId, email, userName, role): UserProfile
+        + updateName(userName): void
+        + changeRole(newRole): void
+        + deactivate(): void
+        + reactivate(): void
+        + isActive(): Boolean
+        + canBorrowBooks(): Boolean
+        + hasAdministrativePrivileges(): Boolean
+        + getFullName(): String
+    }
+
+    class ExternalUserId <<ValueObject>> {
+        + value: String
+        --
+        + getValue(): String
+    }
+
+    class Email <<ValueObject>> {
+        + value: String
+        --
+        + getValue(): String
+    }
+
+    class UserName <<ValueObject>> {
+        + firstName: String
+        + lastName: String
+        --
+        + getFullName(): String
+        + getFormalName(): String
+    }
+
+    class UserRole <<ValueObject>> {
+        + STUDENT
+        + TEACHER
+        + LIBRARIAN
+        + ADMIN
+        --
+        + hasAdministrativePrivileges(): Boolean
+        + canBorrowBooks(): Boolean
+    }
+
+
+    ' ========== DOMAIN SERVICES ==========
+    class RegistrationService <<DomainService>> {
+        + isRegistrationAllowed(email, allowedDomains): boolean
+        + determineInitialRole(email): UserRole
+    }
+
+    ' ========== ANTI-CORRUPTION LAYER ==========
+    interface IdentityProvider <<DomainService>> {
+        + authenticateWithCredentials(email, password): AuthenticationResult
+        + refreshToken(refreshToken): AuthenticationResult
+        + isEmailRegistered(email): boolean
+        + createUser(email, password, ...): String
+        + assignRole(userId, role): void
+        + sendVerificationEmail(userId): void
+    }
+
+    class AuthenticationResult <<ValueObject>> {
+        + accessToken: String
+        + refreshToken: String
+        + expiresIn: long
+        + tokenType: String
+    }
+
+    class RegistrationResult <<ValueObject>> {
+        + externalUserId: String
+        + email: String
+        + message: String
+        + success: boolean
+    }
+    
+    note right of IdentityProvider
+      **Anti-Corruption Layer (Port)**
+      Abstrahiert den externen Identity Provider (Keycloak).
+      Übersetzt externe Auth-Konzepte in die Domain-Sprache.
+    end note
+
+    ' ========== REPOSITORIES ==========
+    class UserProfileRepository <<Repository>> {
+        + findById(id): UserProfile?
+        + findByExternalUserId(externalUserId): UserProfile?
+        + findByEmail(email): UserProfile?
+        + save(userProfile): UserProfile
+        + existsByEmail(email): boolean
+    }
+
+    ' ========== RELATIONSHIPS ==========
+    
+    ' Application to Domain
+    AuthenticationApplicationService ..> IdentityProvider : uses
+    AuthenticationApplicationService ..> AuthenticationResult : returns
+
+    UserRegistrationService ..> IdentityProvider : uses
+    UserRegistrationService ..> RegistrationService : uses
+    UserRegistrationService ..> UserProfileRepository : uses
+    UserRegistrationService ..> RegistrationResult : returns
+    
+    UserProfileApplicationService ..> UserProfileRepository : uses
+    UserProfileApplicationService ..> UserProfile : returns
+
+    ' UserProfile Aggregate
+    UserProfile *-- ExternalUserId : contains
+    UserProfile *-- Email : contains
+    UserProfile *-- UserName : contains
+    UserProfile *-- UserRole : contains
+    
+    ' Services
+    IdentityProvider ..> AuthenticationResult : produces
+    
+    ' Repositories
+    UserProfileRepository ..> UserProfile
+}
+
+note right of UserProfile
+  **Aggregate Root**
+  Repräsentiert den Bibliotheksnutzer.
+  Verwaltet Profil-Lifecycle und Status.
+  
+  **Invarianten:**
+  - Email muss eindeutig sein
+  - Rolle bestimmt Berechtigungen
+  - Nur aktive Nutzer können ausleihen
+end note
+
+note right of UserRole
+  **Value Object**
+  Definiert die Rolle und damit
+  die grundsätzlichen Rechte
+  (z.B. Ausleihe möglich?)
+end note
+
+note bottom of ExternalUserId
+  **Value Object**
+  Referenz zum Identity Provider (Keycloak)
+end note
+
+legend right
+  |<back:AGGREGATE_BG>   </back>| Aggregate Root |
+  |<back:ENTITY_BG>   </back>| Entity |
+  |<back:VALUE_OBJECT_BG>   </back>| Value Object |
+  |<back:SERVICE_BG>   </back>| Domain Service |
+  |<back:APP_SERVICE_BG>   </back>| Application Service |
+  |<back:REPOSITORY_BG>   </back>| Repository |
+  
+  **Beziehungen:**
+  <i>..></i> Lose Kopplung
+  <i>*--</i> Komposition (enthält)
+  <i>--></i> Verwendung
+endlegend
+
+@enduml

@@ -1,0 +1,47 @@
+### Password Reset Request Test
+
+POST http://localhost:4010/api/v1/auth/password/reset-request
+Content-Type: application/json
+
+{
+  "email": "test@schule.de"
+}
+
+###
+
+### Password Reset Request - Invalid Email
+
+POST http://localhost:4010/api/v1/auth/password/reset-request
+Content-Type: application/json
+
+{
+  "email": "invalid@gmail.com"
+}
+
+###
+
+### User Registration Test
+
+POST http://localhost:4010/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "max.mustermann@schule.de",
+  "password": "SecurePassword123!",
+  "firstName": "Max",
+  "lastName": "Mustermann"
+}
+
+###
+
+### User Login Test
+
+POST http://localhost:4010/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "max.mustermann@schule.de",
+  "password": "SecurePassword123!"
+}
+
+###

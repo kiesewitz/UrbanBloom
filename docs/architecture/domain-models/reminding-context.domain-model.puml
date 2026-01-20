@@ -1,0 +1,227 @@
+@startuml reminding-context-domain-model
+!define AGGREGATE_BG #90EE90
+!define ENTITY_BG #ADD8E6
+!define VALUE_OBJECT_BG #FFFFE0
+!define SERVICE_BG #F5DEB3
+!define REPOSITORY_BG #D3D3D3
+
+skinparam class {
+    BackgroundColor<<AggregateRoot>> AGGREGATE_BG
+    BackgroundColor<<Entity>> ENTITY_BG
+    BackgroundColor<<ValueObject>> VALUE_OBJECT_BG
+    BackgroundColor<<DomainService>> SERVICE_BG
+    BackgroundColor<<Repository>> REPOSITORY_BG
+    BorderColor #505050
+    ArrowColor #333333
+}
+
+title REMINDING CONTEXT - Domain Model (Supporting Subdomain)
+
+package "Reminding Context" {
+
+    ' ========== REMINDERCAMPAIGN AGGREGATE ==========
+    class ReminderCampaign <<AggregateRoot>> {
+        + campaignId: UUID
+        + executionDate: LocalDate
+        + executionTime: LocalTime
+        + totalLoansChecked: Integer
+        + remindersTriggered: Integer
+        + status: CampaignStatus
+        + startedAt: Instant
+        + completedAt: Instant?
+        + errorMessage: String?
+        --
+        + {static} startCampaign(executionDate, executionTime, policy): ReminderCampaign
+        + addLoanChecked(): void
+        + addReminderTriggered(): void
+        + complete(): void
+        + fail(errorMessage): void
+        + isRunning(): Boolean
+        + getTotalChecked(): Integer
+        + getTotalTriggered(): Integer
+        + getDurationInMinutes(): Integer
+    }
+
+    class CampaignStatus <<ValueObject>> {
+        + Running
+        + Completed
+        + Failed
+    }
+
+    class ReminderPolicy <<ValueObject>> {
+        + upcomingDays: Integer
+        + overdueDays: Integer
+        + escalationDays: Integer
+        --
+        + shouldSendUpcoming(loan): Boolean
+        + shouldSendOverdue(loan): Boolean
+        + shouldSendEscalation(loan): Boolean
+    }
+
+    class ReminderSchedule <<ValueObject>> {
+        + cronExpression: String
+        + executionTime: LocalTime
+        --
+        + getNextExecution(): Instant
+        + validate(): Boolean
+    }
+
+    class ReminderType <<ValueObject>> {
+        + Upcoming
+        + Overdue
+        + Escalation
+    }
+
+    class ReminderEvaluation <<ValueObject>> {
+        + loanId: UUID
+        + userId: UUID
+        + mediaId: UUID
+        + dueDate: LocalDate
+        + daysDelta: Integer
+        + reminderType: ReminderType
+        --
+        + shouldTrigger(policy): Boolean
+    }
+
+    ' ========== DOMAIN SERVICES ==========
+    class RemindingEvaluationService <<DomainService>> {
+        + runDailyCampaign(policy, atTime): ReminderCampaign
+        + evaluateLoan(loan, policy): ReminderEvaluation?
+        + completeCampaign(campaignId): void
+        + failCampaign(campaignId, error): void
+    }
+
+    class ReminderPolicyService <<DomainService>> {
+        + getActivePolicy(): ReminderPolicy
+        + updatePolicy(policy): void
+        + calculateReminderDates(loan, policy): List<LocalDate>
+    }
+
+    ' ========== SCHEDULED JOB ==========
+    class ReminderScheduler <<DomainService>> {
+        + scheduleDaily(policy): void
+        + executeAt(time): void
+        + cancelSchedule(): void
+    }
+
+    ' ========== REPOSITORIES ==========
+    class ReminderCampaignRepository <<Repository>> {
+        + findById(campaignId): ReminderCampaign?
+        + findByExecutionDate(date): ReminderCampaign?
+        + findRunning(): ReminderCampaign?
+        + save(campaign): void
+    }
+
+    class LoanQueryService <<Repository>> {
+        + findAllActive(): List<Loan>
+        + findOverdue(): List<Loan>
+        + findDueSoon(days): List<Loan>
+    }
+
+    ' ========== RELATIONSHIPS ==========
+    
+    ' ReminderCampaign Aggregate
+    ReminderCampaign --> CampaignStatus : uses
+    ReminderCampaign ..> ReminderPolicy : uses
+    ReminderCampaign *-- ReminderSchedule : contains
+    
+    ' Value Objects
+    ReminderEvaluation --> ReminderType : uses
+    ReminderEvaluation ..> ReminderPolicy : evaluated against
+    
+    ReminderPolicy --> ReminderType : defines rules for
+    
+    ' Services to Aggregates
+    RemindingEvaluationService ..> ReminderCampaign : creates/modifies
+    RemindingEvaluationService ..> ReminderEvaluation : produces
+    RemindingEvaluationService ..> ReminderPolicy : uses
+    RemindingEvaluationService ..> LoanQueryService : queries loans
+    
+    ReminderPolicyService ..> ReminderPolicy : manages
+    
+    ReminderScheduler ..> RemindingEvaluationService : triggers
+    ReminderScheduler ..> ReminderSchedule : uses
+    
+    ' Repositories
+    ReminderCampaignRepository ..> ReminderCampaign
+    LoanQueryService ..> "(Lending Context)" : reads Loans
+}
+
+note right of ReminderCampaign
+  **Aggregate Root**
+  Batch-Execution von täglichen 
+  Reminder-Checks
+  
+  **Eindeutigkeit:**
+  Nur 1 Campaign pro Tag (executionDate)
+  
+  **Metrics:**
+  - totalLoansChecked
+  - remindersTriggered
+  - duration
+end note
+
+note right of ReminderPolicy
+  **Konfigurierbare Regeln**
+  Defaults (Admin Web-App):
+  - upcomingDays: -3 (T-3)
+  - overdueDays: +1 (T+1)
+  - escalationDays: +7 (T+7)
+  
+  **Evaluation:**
+  - T-3: "In 3 Tagen fällig" (info)
+  - T+0: "Heute zurückgeben" (reminder)
+  - T+1: "1 Tag überfällig" (warning)
+  - T+7: "7 Tage überfällig" (escalation)
+end note
+
+note bottom of RemindingEvaluationService
+  **Daily Campaign Flow:**
+  1. Start Campaign (08:00)
+  2. Query all active Loans
+  3. For each Loan:
+     - Evaluate gegen ReminderPolicy
+     - If match: Publish ReminderTriggered Event
+     - Increment metrics
+  4. Complete Campaign
+  5. Publish Campaign Statistics
+  
+  **Domain Event:**
+  ReminderTriggered(reminderId, loanId, 
+                    userId, type, daysDelta)
+end note
+
+note bottom of ReminderScheduler
+  **Scheduled Job**
+  Cron: "0 8 * * *" (täglich 08:00)
+  
+  Triggert RemindingEvaluationService
+  
+  Bei Fehler: Campaign.fail()
+  → Admin-Notification
+end note
+
+note bottom of LoanQueryService
+  **Read-Only Access**
+  Queries Loans aus Lending Context
+  
+  Kein direkter Zugriff auf Aggregate
+  → Nur über Repository/Query-Interface
+  
+  Eventual Consistency akzeptabel
+end note
+
+legend right
+  |<back:AGGREGATE_BG>   </back>| Aggregate Root |
+  |<back:ENTITY_BG>   </back>| Entity |
+  |<back:VALUE_OBJECT_BG>   </back>| Value Object |
+  |<back:SERVICE_BG>   </back>| Domain Service |
+  |<back:REPOSITORY_BG>   </back>| Repository |
+  
+  **Beziehungen:**
+  <i>..></i> Lose Kopplung
+  <i>*--</i> Komposition (enthält)
+  <i>--></i> Verwendung
+endlegend
+
+@enduml

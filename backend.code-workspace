@@ -1,0 +1,114 @@
+{
+	"folders": [
+		{
+			"path": "backend"
+		},
+		{
+			"path": "docs"
+		},
+		{
+			"path": ".agent"
+		},
+		{
+			"path": ".bmad-core"
+		},
+		{
+			"path": ".github"
+		}
+	],
+	"extensions": {
+		"recommendations": [
+			"vscjava.vscode-java-pack",
+			"Pivotal.vscode-boot-dev-pack",
+			"redhat.vscode-maven",
+			"redhat.vscode-yaml"
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Backend: Maven Clean Build",
+				"type": "shell",
+				"command": "mvn",
+				"args": [
+					"clean",
+					"compile",
+					"-DskipTests"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:backend}/backend"
+				},
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				}
+			},
+			{
+				"label": "Backend: Maven Build",
+				"type": "shell",
+				"command": "mvn",
+				"args": [
+					"clean",
+					"package",
+					"-DskipTests"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:backend}/backend"
+				},
+				"group": {
+					"kind": "build"
+				}
+			},
+			{
+				"label": "Backend: Maven Test",
+				"type": "shell",
+				"command": "mvn",
+				"args": [
+					"test"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:backend}/backend"
+				},
+				"group": {
+					"kind": "test",
+					"isDefault": true
+				}
+			},
+			{
+				"label": "Backend: Run Spring Boot App",
+				"type": "shell",
+				"command": "mvn",
+				"args": [
+					"-pl",
+					"schoollibrary-app",
+					"spring-boot:run"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:backend}/backend"
+				},
+				"isBackground": true,
+				"group": {
+					"kind": "none"
+				}
+			},
+			{
+				"label": "Backend: Stop Spring Boot App",
+				"type": "shell",
+				"command": "taskkill",
+				"args": [
+					"/F",
+					"/IM",
+					"java.exe"
+				],
+				"isBackground": false,
+				"group": {
+					"kind": "none"
+				}
+			}
+		]
+	},
+	"settings": {
+		"java.compile.nullAnalysis.mode": "disabled"
+	}
+}

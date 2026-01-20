@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>School Library Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f64a9",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101a22",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111518] dark:text-white overflow-x-hidden w-full h-full">
+<div class="relative flex flex-col min-h-screen w-full mx-auto max-w-[430px] shadow-2xl bg-background-light dark:bg-background-dark">
+<header class="sticky top-0 z-20 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-4 pt-12 pb-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-gray-700 shadow-sm" data-alt="User profile picture of a student smiling" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAqYSqilXMLILtvQExNiZ1ivL2wOZsHMNY6eKSzLxg2zyR-az4BZ6c0IsHbyYzyH69rFWXSfri710Tj_ddO67Vfht5SlkcS4Dfo67EBQ1j1KdIUaUEoLS7q0SPvNBcKZwNMjbGp7kMExqAVBqBNjRZmUOiR8wljomcolvZCx_rYq2Ol6FZs3Hy74oJsPGjINX0R-YUwxqCfMX5vwnWw0awfD5-5ZQ6aAFvaeGnpVpMY7taFdZJWBFbx4rcLvQ1bhKFoLCZavGimcA");'>
+</div>
+<div class="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
+</div>
+<div>
+<p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Welcome back,</p>
+<h2 class="text-lg font-bold leading-tight">Sophie M.</h2>
+</div>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full bg-white dark:bg-gray-800 shadow-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors relative">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+<span class="absolute top-2 right-2.5 size-2 bg-red-500 rounded-full"></span>
+</button>
+</header>
+<section class="px-4 py-6">
+<div class="flex flex-col gap-3">
+<div class="grid grid-cols-2 gap-3">
+<div class="flex flex-row items-center justify-between gap-1 rounded-2xl bg-white dark:bg-gray-800 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-transparent dark:border-gray-700">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">menu_book</span>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider">On Loan</p>
+</div>
+</div>
+<p class="text-2xl font-bold text-gray-900 dark:text-white">3</p>
+</div>
+<div class="flex flex-row items-center justify-between gap-1 rounded-2xl bg-white dark:bg-gray-800 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-transparent dark:border-gray-700">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-orange-500 text-[20px]">bookmark</span>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider">Reserved</p>
+</div>
+</div>
+<p class="text-2xl font-bold text-gray-900 dark:text-white">1</p>
+</div>
+</div>
+<div class="flex flex-1 flex-col gap-1 rounded-2xl bg-white dark:bg-gray-800 p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-none border border-transparent dark:border-gray-700">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-red-500 text-[20px]">euro_symbol</span>
+<p class="text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider">Fees</p>
+</div>
+<p class="text-3xl font-bold text-red-500 flex justify-between items-center w-full">
+<span>€2.50</span>
+<span class="flex gap-2">
+<button class="px-6 py-2.5 rounded-full text-sm font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600">Details</button>
+<button class="px-6 py-2.5 rounded-full text-sm font-bold text-white bg-red-600 shadow-sm hover:bg-red-700">Pay Now</button>
+</span>
+</p>
+</div>
+</div>
+</section>
+<section class="flex flex-col gap-4 mb-8">
+<div class="flex items-center justify-between px-4">
+<h3 class="text-lg font-bold leading-tight">Current Borrowings</h3>
+<a class="text-sm font-medium text-primary hover:text-blue-700" href="#">See All</a>
+</div>
+<div class="flex overflow-x-auto gap-4 px-4 pb-4 no-scrollbar snap-x snap-mandatory">
+<div class="snap-center shrink-0 w-[85%] max-w-[320px] rounded-2xl bg-white dark:bg-gray-800 p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-4">
+<div class="flex gap-4">
+<div class="w-24 shrink-0 rounded-lg overflow-hidden shadow-md aspect-[2/3] bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="Book cover of Introduction to Physics with abstract geometric shapes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9izCV62cPSVjmqQCFC5LDxmNPI3eY7na4HaSko8T9aDk_Pm9ZWFPxYMaDcsVZs6YmxIvBgvwUfI7EetMWeS3JD18b9iYOQGiu_KqbgcvClD3-C3HmAJmJoFROLhL9LRmJYGKD856gQZylFM14WNSZedLk7i_fFsDf-MrpfO5DkftwT5wcYJaBFBhEoxmK7T1oppu5uAmxtZSNBeXR5qUVcu9bLYDT5CoJq0I5BaUU-Ymrgxxrxacr0N53FwJnvVXWTepDXo-oHw"/>
+</div>
+<div class="flex flex-col flex-1 justify-between py-1">
+<div>
+<span class="inline-flex items-center gap-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-200 mb-2">
+<span class="size-1.5 rounded-full bg-yellow-500"></span>
+                                    Due Soon
+                                </span>
+<h4 class="font-bold text-base leading-snug line-clamp-2 mb-1">Introduction to Physics</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400">Due: Oct 24</p>
+</div>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 rounded-full bg-primary/10 hover:bg-primary/20 text-primary dark:text-blue-400 font-medium py-2.5 text-sm transition-colors">
+<span class="material-symbols-outlined text-[18px]">update</span>
+                        Extend Loan
+                    </button>
+</div>
+<div class="snap-center shrink-0 w-[85%] max-w-[320px] rounded-2xl bg-white dark:bg-gray-800 p-4 shadow-sm border border-red-100 dark:border-red-900/30 flex flex-col gap-4 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+<div class="flex gap-4 pl-2">
+<div class="w-24 shrink-0 rounded-lg overflow-hidden shadow-md aspect-[2/3] bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="Book cover of Modern History Vol. 2 showing historical architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDtOsnEP8KtbUfx_hXmF3lisQX0FtjrrLm33rfHB7g-O96vjT-2laMCPwQhkwUDw09OssJQnHMpWzUzRC1N7ytsXr1jVIoSyaf5HQjYSK1D6OSduOmRg0-3S9LtNTcrQIYnqmSruQtW3XUGsWFRYQKxmYJ-tqduJqO_mNRTyzYjVACsXUsqn9tRv1KjM82RkdtueqS8ACZ43uBOTzDNc7NMZMEH4YkQyA1rqhhLubNutxyN4IucCD83zNCwhqHOeW6-mWIbdhK0w"/>
+</div>
+<div class="flex flex-col flex-1 justify-between py-1">
+<div>
+<span class="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-200 mb-2">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                                    Overdue
+                                </span>
+<h4 class="font-bold text-base leading-snug line-clamp-2 mb-1">Modern History Vol. 2</h4>
+<p class="text-sm text-red-600 dark:text-red-400 font-medium">Due: Oct 10</p>
+</div>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 rounded-full bg-red-600 text-white font-medium py-2.5 text-sm hover:bg-red-700 transition-colors shadow-sm ml-1">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+                        Pay Fine
+                    </button>
+</div>
+<div class="snap-center shrink-0 w-[85%] max-w-[320px] rounded-2xl bg-white dark:bg-gray-800 p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-4">
+<div class="flex gap-4">
+<div class="w-24 shrink-0 rounded-lg overflow-hidden shadow-md aspect-[2/3] bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="Book cover of Clean Code with a minimalist digital pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvv0kdWbZncvtpgUJk-czMfP48sSqzsZiobBHnHiIkPXCkDsaJgJwUBK8gWXspBsN-hanWpi4u20TPUmmOeI0KxAWTLbzqA3NzLBLgy_K9DX3BndelgNuJAwt3NFxF6fZc3eu5VO3WamaHeW5WZNQSooIGn4rBw13zZXLw0zshOmXzsVKKYZYDhsikM2Ew8x-BLowolxGneCI7G4ERIFT48VZo1HhllBvUaGhUsc4gB-tnFdXPTJDNhCOtbCGnbno5JLHNiFJ9Og"/>
+</div>
+<div class="flex flex-col flex-1 justify-between py-1">
+<div>
+<span class="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-200 mb-2">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                    Healthy
+                                </span>
+<h4 class="font-bold text-base leading-snug line-clamp-2 mb-1">Design Systems</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400">Due: Nov 15</p>
+</div>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-medium py-2.5 text-sm cursor-not-allowed">
+                        Extend Loan
+                    </button>
+</div>
+</div>
+</section>
+<section class="flex flex-col gap-3 px-4 mb-8">
+<h3 class="text-lg font-bold leading-tight">Active Reservations</h3>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-4 p-3 rounded-2xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700">
+<div class="w-12 h-16 shrink-0 rounded bg-gray-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Book cover of The Great Gatsby featuring art deco eyes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjG_BBGhLwH920PRUnQVIpdmJIl43NHjPAsF3xNlz1c4beIrfN_I0HO7cBg3nk_7_9_e6G2ql37O63xD-n-D-TMkDQWI0KHr4GG9GBzzeR4XxLDntXM_IiURmNfAQCsT47RW6uLO-2J0-HO7sM9LSG8phnJHw2tN8lFTf2fNHcTUjh814vzwhW_6pzH56mD5YabpnXcM6OBoqioJOGa5L-XKKsqS1fZRhr8kzEmBzX8V2W7j3l7ftlWu9vhWfuY-WwRgFxtcYN2A"/>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<h4 class="font-bold text-sm truncate">The Great Gatsby</h4>
+<p class="text-xs text-green-600 dark:text-green-400 font-medium mb-1">Ready for Pickup</p>
+<p class="text-xs text-gray-400">Pickup by: Oct 26</p>
+</div>
+<button class="shrink-0 size-8 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+<span class="material-symbols-outlined text-[20px]">cancel</span>
+</button>
+</div>
+</div>
+</section>
+<section class="px-4 mb-24">
+<button class="w-full flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700 group">
+<div class="flex items-center gap-3">
+<div class="p-2 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary">
+<span class="material-symbols-outlined text-[20px]">history</span>
+</div>
+<span class="font-bold text-sm">Borrowing History</span>
+</div>
+<span class="material-symbols-outlined text-gray-400 group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+</section>
+<nav class="fixed bottom-0 left-0 w-full z-30 bg-white/90 dark:bg-background-dark/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 pb-safe">
+<div class="flex justify-around items-center h-16 max-w-[430px] mx-auto">
+<a class="flex flex-col items-center gap-1 w-16 text-primary" href="#">
+<span class="material-symbols-outlined fill-current">dashboard</span>
+<span class="text-[10px] font-bold">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" href="#">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+<span class="text-[10px] font-medium">Scan</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-16 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

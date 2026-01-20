@@ -1,0 +1,330 @@
+@startuml lending-context-domain-model
+!define AGGREGATE_BG #90EE90
+!define ENTITY_BG #ADD8E6
+!define VALUE_OBJECT_BG #FFFFE0
+!define SERVICE_BG #F5DEB3
+!define REPOSITORY_BG #D3D3D3
+
+skinparam class {
+    BackgroundColor<<AggregateRoot>> AGGREGATE_BG
+    BackgroundColor<<Entity>> ENTITY_BG
+    BackgroundColor<<ValueObject>> VALUE_OBJECT_BG
+    BackgroundColor<<DomainService>> SERVICE_BG
+    BackgroundColor<<Repository>> REPOSITORY_BG
+    BorderColor #505050
+    ArrowColor #333333
+}
+
+title LENDING CONTEXT - Domain Model (Core Domain)
+
+package "Lending Context" {
+
+    ' ========== LOAN AGGREGATE ==========
+    class Loan <<AggregateRoot>> {
+        + loanId: UUID
+        + userId: UUID
+        + mediaId: UUID
+        + mediaCopyBarcode: String
+        + checkoutDate: LocalDate
+        + dueDate: LocalDate
+        + returnDate: LocalDate?
+        + status: LoanStatus
+        + renewalCount: Integer
+        + isOverdue: Boolean
+        + overdueDays: Integer
+        --
+        + {static} checkout(userId, mediaId, barcode, policy, userGroup): Loan
+        + return(returnDate): void
+        + renew(renewalPolicy, loanPolicy, preReservations): void
+        + isEligibleForRenewal(policy, preReservations): Boolean
+        + isOverdue(): Boolean
+        + calculateOverdueDays(): Integer
+    }
+
+    class LoanStatus <<ValueObject>> {
+        + Active
+        + Returned
+        + Overdue
+    }
+
+    class DueDate <<ValueObject>> {
+        + date: LocalDate
+        --
+        + isExpired(): Boolean
+    }
+
+    class LoanPolicy <<ValueObject>> {
+        + studentDays: Integer
+        + teacherDays: Integer
+        + librarianDays: Integer
+        --
+        + getDurationFor(userGroup): Integer
+    }
+
+    class RenewalPolicy <<ValueObject>> {
+        + maxRenewals: Integer
+        + durationDays: Integer
+    }
+
+    ' ========== RESERVATION AGGREGATE ==========
+    class Reservation <<AggregateRoot>> {
+        + reservationId: UUID
+        + userId: UUID
+        + mediaId: UUID
+        + mediaCopyBarcode: String
+        + createdAt: Instant
+        + expiryDate: LocalDate
+        + pickupLocation: String
+        + status: ReservationStatus
+        + collectedAt: Instant?
+        --
+        + {static} reserve(userId, mediaId, barcode, policy): Reservation
+        + collect(): void
+        + expire(): void
+        + cancel(): void
+        + isPending(): Boolean
+    }
+
+    class ReservationStatus <<ValueObject>> {
+        + Pending
+        + Collected
+        + Expired
+    }
+
+    class ReservationPolicy <<ValueObject>> {
+        + ttlHours: Integer
+        --
+        + calculateExpiryDate(createdAt): LocalDate
+    }
+
+    ' ========== PRERESERVATION (WAITLIST) AGGREGATE ==========
+    class PreReservation <<AggregateRoot>> {
+        + preReservationId: UUID
+        + userId: UUID
+        + mediaId: UUID
+        + position: Integer
+        + createdAt: Instant
+        + estimatedAvailableDate: LocalDate?
+        + status: PreReservationStatus
+        + resolvedAt: Instant?
+        --
+        + {static} preReserve(userId, mediaId, waitlistSize): PreReservation
+        + resolve(): void
+        + cancel(): void
+        + updatePosition(newPosition): void
+        + isWaiting(): Boolean
+    }
+
+    class PreReservationStatus <<ValueObject>> {
+        + Waiting
+        + Resolved
+        + Cancelled
+    }
+
+    ' ========== CLASSSET AGGREGATE ==========
+    class ClassSet <<AggregateRoot>> {
+        + classSetId: UUID
+        + teacherUserId: UUID
+        + className: String
+        + checkoutDate: LocalDate
+        + dueDate: LocalDate
+        + returnDate: LocalDate?
+        + status: ClassSetStatus
+        + isComplete: Boolean
+        --
+        + {static} checkoutClassSet(teacherId, className, members, policy): ClassSet
+        + markSetMemberReturned(barcode, returnDate): void
+        + markSetMemberMissing(barcode): void
+        + returnClassSet(): void
+        + isComplete(): Boolean
+        + getMissingSetMembers(): List<SetMember>
+    }
+
+    class SetMember <<Entity>> {
+        + setMemberId: UUID
+        + mediaCopyBarcode: String
+        + mediaTitle: String
+        + returnedAt: Instant?
+        + status: SetMemberStatus
+    }
+
+    class ClassSetStatus <<ValueObject>> {
+        + Active
+        + Returned
+        + PartiallyReturned
+    }
+
+    class SetMemberStatus <<ValueObject>> {
+        + CheckedOut
+        + Returned
+        + Missing
+    }
+
+    class ClassSetPolicy <<ValueObject>> {
+        + durationDays: Integer
+    }
+
+    ' ========== DOMAIN SERVICES ==========
+    class LoanCheckoutService <<DomainService>> {
+        + checkout(userId, barcode, now): Loan
+        + validateUserEligibility(userId): void
+        + calculateDueDate(userGroup, policy): LocalDate
+    }
+
+    class LoanReturnService <<DomainService>> {
+        + returnByBarcode(barcode, returnDate): void
+        + finalizeLoanReturn(loan): void
+        + processWaitlist(mediaId): void
+    }
+
+    class LoanRenewalService <<DomainService>> {
+        + renew(loanId, policies): void
+        + isEligible(loanId): Boolean
+    }
+
+    class ReservationWaitlistService <<DomainService>> {
+        + reserveOrQueue(userId, mediaId, now): void
+        + cancel(userId, id): void
+        + promoteOnReturn(mediaId, now): void
+        + collect(reservationId, userId): void
+        + expirePending(now): void
+    }
+
+    class ClassSetOrchestrationService <<DomainService>> {
+        + checkoutClassSet(teacherId, className, barcodes): ClassSet
+        + markMemberReturned(barcode): void
+        + markMemberMissing(barcode): void
+        + returnClassSet(classSetId): void
+    }
+
+    ' ========== REPOSITORIES ==========
+    class LoanRepository <<Repository>> {
+        + findById(loanId): Loan?
+        + findByBarcode(barcode): Loan?
+        + findActiveByUserId(userId): List<Loan>
+        + save(loan): void
+    }
+
+    class ReservationRepository <<Repository>> {
+        + findById(reservationId): Reservation?
+        + findPendingExpired(now): List<Reservation>
+        + save(reservation): void
+    }
+
+    class PreReservationRepository <<Repository>> {
+        + findById(preReservationId): PreReservation?
+        + findFirstWaitingByMediaId(mediaId): PreReservation?
+        + countWaitingByMediaId(mediaId): Integer
+        + save(preReservation): void
+    }
+
+    class ClassSetRepository <<Repository>> {
+        + findById(classSetId): ClassSet?
+        + findActiveByTeacherId(teacherId): ClassSet?
+        + save(classSet): void
+    }
+
+    ' ========== RELATIONSHIPS ==========
+    
+    ' Loan Aggregate
+    Loan *-- DueDate : contains
+    Loan --> LoanStatus : uses
+    Loan ..> LoanPolicy : uses
+    Loan ..> RenewalPolicy : uses
+    
+    ' Reservation Aggregate
+    Reservation --> ReservationStatus : uses
+    Reservation ..> ReservationPolicy : uses
+    
+    ' PreReservation Aggregate
+    PreReservation --> PreReservationStatus : uses
+    
+    ' ClassSet Aggregate
+    ClassSet *-- SetMember : contains >
+    ClassSet --> ClassSetStatus : uses
+    SetMember --> SetMemberStatus : uses
+    ClassSet ..> ClassSetPolicy : uses
+    
+    ' Services to Aggregates
+    LoanCheckoutService ..> Loan : creates
+    LoanCheckoutService ..> LoanPolicy : uses
+    LoanReturnService ..> Loan : modifies
+    LoanRenewalService ..> Loan : modifies
+    LoanRenewalService ..> RenewalPolicy : uses
+    
+    ReservationWaitlistService ..> Reservation : creates/modifies
+    ReservationWaitlistService ..> PreReservation : creates/modifies
+    ReservationWaitlistService ..> ReservationPolicy : uses
+    
+    ClassSetOrchestrationService ..> ClassSet : creates/modifies
+    ClassSetOrchestrationService ..> ClassSetPolicy : uses
+    
+    ' Repositories
+    LoanRepository ..> Loan
+    ReservationRepository ..> Reservation
+    PreReservationRepository ..> PreReservation
+    ClassSetRepository ..> ClassSet
+}
+
+note right of Loan
+  **Aggregate Root**
+  Verwaltung eines Ausleihvorgangs
+  mit Fristberechnung und 
+  Verlängerungslogik
+  
+  **Events:**
+  - MediaCheckedOut
+  - MediaReturned
+  - LoanRenewed
+end note
+
+note right of Reservation
+  **Aggregate Root**
+  Reservierung verfügbarer Medien
+  mit 48h TTL (konfigurierbar)
+  
+  **Events:**
+  - MediaReserved
+end note
+
+note right of PreReservation
+  **Aggregate Root**
+  FIFO-Waitlist für verliehene Medien
+  Auto-Promotion zu Reservation
+  
+  **Events:**
+  - PreReservationCreated
+  - PreReservationResolved
+end note
+
+note right of ClassSet
+  **Aggregate Root**
+  Klassensatz-Verwaltung mit
+  Multi-Media-Handling und
+  Teilrückgaben
+  
+  **Events:**
+  - ClassSetCheckedOut
+  - ClassSetReturned
+end note
+
+note bottom of ReservationWaitlistService
+  **Zusammengeführter Service**
+  Orchestriert Reservierung + Waitlist
+  Promotion bei Rückgabe
+end note
+
+legend right
+  |<back:AGGREGATE_BG>   </back>| Aggregate Root |
+  |<back:ENTITY_BG>   </back>| Entity |
+  |<back:VALUE_OBJECT_BG>   </back>| Value Object |
+  |<back:SERVICE_BG>   </back>| Domain Service |
+  |<back:REPOSITORY_BG>   </back>| Repository |
+  
+  **Beziehungen:**
+  <i>..></i> Lose Kopplung (Referenz über ID)
+  <i>*--</i> Komposition (Aggregat enthält Entity)
+  <i>--></i> Verwendung (Value Object)
+endlegend
+
+@enduml

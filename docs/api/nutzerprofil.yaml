@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: Nutzerprofil API (User Context)
+  description: API für Benutzerverwaltung, Authentifizierung und Profilmanagement.
+  version: 1.0.0
+servers:
+  - url: /api/v1/users
+    description: Local Development Server
+
+paths:
+  /auth/register:
+    post:
+      summary: Registrierung eines neuen Benutzers
+      description: >
+        Erstellt ein neues Benutzerkonto. Die E-Mail-Adresse muss zu einer erlaubten Schul-Domäne gehören.
+        Ein Passwort muss gesetzt werden.
+      operationId: registerUser
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Benutzer erfolgreich erstellt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Ungültige Anfrage (z.B. Domain nicht erlaubt, Passwort zu schwach)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Benutzer existiert bereits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      summary: Benutzer-Login
+      description: Authentifiziert einen Benutzer mit E-Mail und Passwort.
+      operationId: loginUser
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login erfolgreich
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenResponse'
+        '401':
+          description: Authentifizierung fehlgeschlagen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /config/domains:
+    get:
+      summary: Abrufen der erlaubten E-Mail-Domänen
+      description: Gibt eine Liste der konfigurierten E-Mail-Domänen zurück.
+      operationId: getAllowedDomains
+      tags:
+        - Configuration
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste der Domänen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainConfigResponse'
+        '401':
+          description: Nicht authentifiziert
+        '403':
+          description: Fehlende Berechtigung (nur Admin)
+
+    put:
+      summary: Konfigurieren der erlaubten E-Mail-Domänen
+      description: Setzt die Liste der erlaubten E-Mail-Domänen. Nur für Administratoren.
+      operationId: updateAllowedDomains
+      tags:
+        - Configuration
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainConfigRequest'
+      responses:
+        '200':
+          description: Konfiguration aktualisiert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainConfigResponse'
+        '401':
+          description: Nicht authentifiziert
+        '403':
+          description: Fehlende Berechtigung (nur Admin)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+      properties:
+        email:
+          type: string
+          format: email
+          description: Schul-E-Mail-Adresse (SchoolIdentity)
+          example: max.mustermann@schulbib.de
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: Das zu setzende Passwort
+          example: "Secret123!"
+        firstName:
+          type: string
+          example: Max
+        lastName:
+          type: string
+          example: Mustermann
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: max.mustermann@schulbib.de
+        password:
+          type: string
+          format: password
+          example: "Secret123!"
+
+    UserResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Eindeutige Benutzer-ID
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserGroup'
+        createdAt:
+          type: string
+          format: date-time
+
+    AuthTokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT Access Token
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    DomainConfigRequest:
+      type: object
+      required:
+        - allowedDomains
+      properties:
+        allowedDomains:
+          type: array
+          items:
+            type: string
+            example: "schulbib.de"
+
+    DomainConfigResponse:
+      type: object
+      properties:
+        allowedDomains:
+          type: array
+          items:
+            type: string
+
+    UserGroup:
+      type: string
+      enum:
+        - STUDENT
+        - TEACHER
+        - LIBRARIAN
+      description: Die Rolle des Benutzers im System.
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "DOMAIN_NOT_ALLOWED"
+        message:
+          type: string
+          example: "Die E-Mail-Domäne ist nicht zugelassen."

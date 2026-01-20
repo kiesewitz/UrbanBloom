@@ -1,0 +1,57 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Show Current Git Branch",
+      "type": "shell",
+      "command": "git rev-parse --abbrev-ref HEAD",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "none",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Flutter: Run (Mock)",
+      "type": "shell",
+      "command": "flutter run --dart-define=ENV=mock",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Flutter: Run (Development)",
+      "type": "shell",
+      "command": "flutter run --dart-define=ENV=development",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Flutter: Run (Production)",
+      "type": "shell",
+      "command": "flutter run --dart-define=ENV=production",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

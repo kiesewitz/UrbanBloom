@@ -1,0 +1,18 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Dashboard } from '@/components/Dashboard/Dashboard';
+
+/**
+ * Main App component with routing
+ */
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

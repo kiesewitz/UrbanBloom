@@ -1,0 +1,506 @@
+openapi: 3.0.3
+info:
+  title: School Library - User API
+  version: 1.0.0
+  description: API for user authentication, registration and related user operations (module-user)
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: User login
+      description: Authenticates a user with email and password, validates via Keycloak, and returns JWT tokens.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security: []
+
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Refresh access token
+      description: Exchanges a valid refresh token for new JWT tokens.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+      responses:
+        "200":
+          description: Tokens refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security: []
+
+  /api/v1/auth/allowed-domains:
+    get:
+      tags:
+        - Auth
+      summary: Get allowed school domains for self-registration
+      description: Returns the list of allowed school domains for user self-registration. Public endpoint - no authentication required.
+      responses:
+        "200":
+          description: List of allowed domains
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllowedDomainsResponse"
+      security: []
+
+  /api/v1/auth/password/reset-request:
+    post:
+      tags:
+        - Auth
+      summary: Request password reset
+      description: |-
+        Sends a password reset email to the user if the email exists in the system.
+        Uses Keycloak's built-in password reset flow. For security reasons, the endpoint
+        always returns a success message, regardless of whether the email exists.
+        Public endpoint - no authentication required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetRequest"
+      responses:
+        "200":
+          description: Request processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasswordResetResponse"
+        "400":
+          description: Bad Request - invalid email format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security: []
+
+  /api/v1/auth/password/reset:
+    post:
+      tags:
+        - Auth
+      summary: Reset password
+      description: |-
+        Resets the user's password using the new password provided.
+        The user must have received a password reset email and clicked the link.
+        Keycloak validates the reset token internally.
+        Public endpoint - no authentication required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordReset"
+      responses:
+        "200":
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasswordResetResponse"
+        "400":
+          description: Bad Request - invalid token or weak password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized - token expired or already used
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security: []
+
+  /api/v1/users/me:
+    get:
+      tags:
+        - User
+      summary: Get current user profile
+      description: Retrieves the profile of the currently authenticated user.
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+      security:
+        - bearerAuth: []
+
+  /api/v1/registration:
+    post:
+      tags:
+        - User
+      summary: Register a new user
+      description: Creates a new user account. Public endpoint - no authentication required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistrationRequest"
+      responses:
+        "201":
+          description: Created - registration succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationResponse"
+        "400":
+          description: Bad Request - validation or business error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationResponse"
+      security: []
+
+  /api/v1/registration/check-email:
+    get:
+      tags:
+        - User
+      summary: Check email availability
+      description: Returns whether the given email is available for registration.
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+            example: user@example.org
+      responses:
+        "200":
+          description: Email availability
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailAvailability"
+      security: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: max.mustermann@schulbib.de
+        password:
+          type: string
+          minLength: 8
+          description: User password
+          example: securePass123
+
+    LoginResponse:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+        - token_type
+        - expires_in
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+          example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+        refresh_token:
+          type: string
+          description: JWT refresh token
+          example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          description: Token type
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Access token expiration time in seconds
+          example: 900
+        refresh_expires_in:
+          type: integer
+          description: Refresh token expiration time in seconds
+          example: 604800
+
+    RefreshRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Valid refresh token
+          example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    AllowedDomainsResponse:
+      type: object
+      properties:
+        domains:
+          type: array
+          items:
+            type: string
+          description: List of allowed school domains for self-registration
+          example: ["schulbib.de", "schule.edu"]
+
+    User:
+      type: object
+      required:
+        - userId
+        - schoolIdentity
+        - firstName
+        - lastName
+        - email
+        - userGroup
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Unique user identifier
+          example: 550e8400-e29b-41d4-a716-446655440000
+        schoolIdentity:
+          type: string
+          description: Unique school identity from SSO
+          example: max.mustermann@schulbib.de
+        firstName:
+          type: string
+          description: User's first name
+          example: Max
+        lastName:
+          type: string
+          description: User's last name
+          example: Mustermann
+        email:
+          type: string
+          format: email
+          description: Contact email
+          example: max.mustermann@email.com
+        userGroup:
+          type: string
+          enum: [STUDENT, TEACHER, LIBRARIAN]
+          description: User's role/group
+          example: STUDENT
+        borrowingLimit:
+          type: integer
+          description: Maximum number of simultaneous loans
+          example: 5
+        isActive:
+          type: boolean
+          description: Whether the user is active
+          example: true
+        registrationDate:
+          type: string
+          format: date
+          description: Date of first registration
+          example: 2023-09-01
+        lastLoginAt:
+          type: string
+          format: date-time
+          description: Last login timestamp
+          example: 2023-10-15T10:30:00Z
+
+    RegistrationRequest:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: alice@example.org
+        password:
+          type: string
+          minLength: 8
+          description: Plain-text password (minimum 8 characters)
+          example: securePass123
+        firstName:
+          type: string
+          description: Given name
+          example: Alice
+        lastName:
+          type: string
+          description: Family name
+          example: Mustermann
+        studentId:
+          type: string
+          nullable: true
+          description: Optional student identifier
+          example: S-123456
+        schoolClass:
+          type: string
+          nullable: true
+          description: Optional school class
+          example: 10A
+
+    RegistrationResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          nullable: true
+          description: Created user id (if available)
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        email:
+          type: string
+          format: email
+          description: Email used for registration
+          example: alice@example.org
+        message:
+          type: string
+          description: Informational message about the registration result
+          example: Registration successful. Verification required.
+        verificationRequired:
+          type: boolean
+          description: Whether email verification is required
+          example: true
+
+    EmailAvailability:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: alice@example.org
+        available:
+          type: boolean
+          description: True when email can be used for new registration
+          example: true
+
+    PasswordResetRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address to send password reset email to
+          example: max.mustermann@schulbib.de
+
+    PasswordReset:
+      type: object
+      required:
+        - email
+        - newPassword
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: max.mustermann@schulbib.de
+        newPassword:
+          type: string
+          minLength: 8
+          description: New password (minimum 8 characters)
+          example: NewSecurePass123!
+        token:
+          type: string
+          nullable: true
+          description: Optional - Reset token (for app-managed flow, not used with Keycloak built-in flow)
+          example: abc123-def456-ghi789
+
+    PasswordResetResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Success or informational message
+          example: Falls ein Konto mit dieser E-Mail existiert, wurde eine E-Mail zum Zurücksetzen des Passworts gesendet.
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: Invalid request
+        details:
+          type: array
+          items:
+            type: string
+          description: Additional error details
+
+  responses:
+    Unauthorized:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+tags:
+  - name: Auth
+    description: Authentication-related operations
+  - name: User
+    description: Operations related to user registration and profile checks
+
+externalDocs:
+  description: Module source (module-user)
+  url: https://github.com/ukondert/pr_digital-school-library/tree/main/backend/module-user

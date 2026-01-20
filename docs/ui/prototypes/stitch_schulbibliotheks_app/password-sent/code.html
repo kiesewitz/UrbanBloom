@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html class="light" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Passwort-Reset E-Mail gesendet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0F63A8",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#121212",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1E1E1E",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "24px",
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-300">
+<div class="fixed top-0 left-0 right-0 h-12 flex items-center justify-between px-8 text-sm font-semibold text-slate-900 dark:text-white pointer-events-none">
+<span>9:41</span>
+<div class="flex gap-1.5 items-center">
+<span class="material-symbols-outlined text-[18px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-[18px]">wifi</span>
+<span class="material-symbols-outlined text-[18px]">battery_full</span>
+</div>
+</div>
+<div class="w-full max-w-[400px] flex flex-col gap-8">
+<header class="flex items-center justify-between w-full px-2">
+<button class="w-10 h-10 flex items-center justify-start text-slate-800 dark:text-slate-200">
+<span class="material-symbols-outlined font-bold">arrow_back_ios</span>
+</button>
+<h1 class="text-lg font-bold text-slate-800 dark:text-white">E-Mail gesendet</h1>
+<div class="w-10"></div> 
+</header>
+<div class="bg-card-light dark:bg-card-dark rounded-[32px] shadow-sm border border-slate-100 dark:border-slate-800 p-8 flex flex-col items-center text-center">
+<div class="w-24 h-24 bg-blue-50 dark:bg-primary/10 rounded-full flex items-center justify-center mb-8">
+<div class="w-16 h-16 bg-white dark:bg-slate-800 rounded-full shadow-sm flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-4xl font-bold">mail</span>
+</div>
+</div>
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+                Prüfe dein Postfach
+            </h2>
+<p class="text-slate-500 dark:text-slate-400 leading-relaxed px-2">
+                Wir haben einen Link zum Zurücksetzen deines Passworts an deine Schul-E-Mail-Adresse gesendet.
+            </p>
+<div class="w-full mt-10 py-6 px-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+<div class="flex items-center justify-center gap-2 text-primary font-semibold text-sm">
+<span class="material-symbols-outlined text-sm">verified_user</span>
+<span class="uppercase tracking-wider">Sicherer Versand</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4 mt-4">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-4 px-8 rounded-full shadow-lg shadow-primary/20 transition-all active:scale-[0.98]">
+                Zurück zum Login
+            </button>
+<p class="text-center text-slate-400 dark:text-slate-500 text-sm px-8">
+                Keine E-Mail erhalten? Bitte überprüfe auch deinen Spam-Ordner oder wende dich an die Bibliothek.
+            </p>
+</div>
+</div>
+<button class="fixed bottom-6 right-6 w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-symbols-outlined">contrast</span>
+</button>
+
+</body></html>

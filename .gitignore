@@ -1,72 +1,67 @@
-# Node / Web
-node_modules/
-dist/
-build/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# Environment files
 .env
+.env.*
+!.env.example
+
+# Local-only env variants
 .env.local
-.env.production.local
-coverage/
+.env.local.*
+
+# VS Code
+.vscode/settings.json
+
+# Maven
+backend/.m2/
+**/target/
+
+# Node
+**/node_modules/
+**/dist/
+
+# Frontend Web (React + TypeScript)
+frontend-web/.vite/
+frontend-web/coverage/
+frontend-web/storybook-static/
+frontend-web/*.tsbuildinfo
+frontend-web/.eslintcache
 
 # Flutter / Dart
-mobile/build/
-mobile/.dart_tool/
-mobile/.flutter-plugins
-mobile/.flutter-plugins-dependencies
-mobile/.packages
-mobile/.pub-cache/
-mobile/.pub/
-mobile/ios/Pods/
-mobile/ios/.symlinks/
-mobile/ios/Flutter/Flutter.framework
-mobile/ios/Flutter/Flutter.podspec
-mobile/android/app/debug
-mobile/android/app/profile
-mobile/android/app/release
-mobile/*.iml
-mobile/*.lock
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/build/
 
-admin-web/build/
-admin-web/.dart_tool/
-admin-web/.flutter-plugins
-admin-web/.flutter-plugins-dependencies
-admin-web/.packages
-admin-web/.pub-cache/
-admin-web/.pub/
-admin-web/*.iml
-admin-web/*.lock
-
-# Java / Maven / Spring Boot
-server/target/
-server/.mvn/wrapper/maven-wrapper.jar
-server/.mvn/
-server/mvnw
-server/mvnw.cmd
-server/*.iml
-server/.idea/
-server/.classpath
-server/.project
-server/.settings/
-server/bin/
-
-# OS
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*~
-.directory
-
-# IDE (aber nicht .vscode/)
+# IDE
+**/*.iml
 .idea/
-*.iml
-*.ipr
-*.iws
-.project
-.classpath
-.settings/
-nbproject/
+
+# Self-hosted GitHub Runner
+actions-runner/ 
+
+# Secrets (never commit)
+docs/personal-token.txt
+pr_body.md
+backend/schoollibrary-app/logs/schoollibrary.log
+backend/schoollibrary-app/logs/schoollibrary.log
+backend/schoollibrary-app/logs/archive/schoollibrary.2026-01-08.log
+backend/schoollibrary-app/logs/schoollibrary.log
+backend/schoollibrary-app/logs/**/*.log
+backend/schoollibrary-app/logs/schoollibrary.log
+docs/implementation-details/impl-details_backend_US-USR-25_passwort-zuruecksetzen.pdf
+docs/implementation-details/impl-details_US-USR-25_passwort-zuruecksetzen.pdf
+backend/schoollibrary-app/logs/schoollibrary.log
+changed_files.txt
+full_diff.patch
+issue_25.md
+porcelain_status.txt
+pr_body.md
+changed_files.txt
+pr_body.md
+backend/schoollibrary-app/logs/schoollibrary.log
+*output.txt
+*_diff.patch
+*full_diff.patch
+docs/implementation-details/impl-details_backend_US-USR-02-REF_self-registration.html
+docs/implementation-details/impl-details_backend_US-USR-02-REF_self-registration.pdf
+pr_body_updated.md
+backend/schoollibrary-app/logs/schoollibrary.log

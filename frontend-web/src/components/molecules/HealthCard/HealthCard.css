@@ -1,0 +1,20 @@
+.sl-health-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.sl-health-card h2 {
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.sl-health-card .loading { color: #ff9800; font-style: italic; }
+.sl-health-card .error { color: #f44336; padding: 1rem; background: rgba(244,67,54,0.1); border-radius:8px; }
+.sl-health-card .status-info { margin: 1rem 0; }
+.sl-health-card .timestamp { color:#888; font-size:0.9em; margin-top:0.5rem; }
+.sl-health-card .app-info { margin-top:1rem; padding:0.75rem; background: rgba(100,108,255,0.07); border-radius:8px; }
+.sl-health-card .app-info ul { list-style:none; padding:0; }
+
+.refresh-button { width:100%; margin-top:1rem; }

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mein Ausweis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f64a9",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101a22",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased min-h-screen flex flex-col items-center">
+<!-- Main Container (Mobile Viewport) -->
+<div class="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-background-light dark:bg-background-dark min-h-screen shadow-2xl">
+<!-- Header -->
+<div class="flex items-center p-4 pb-2 justify-between bg-transparent z-10">
+<button class="text-[#111518] dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[24px]">close</span>
+</button>
+<h2 class="text-[#111518] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">
+                Mein Ausweis
+            </h2>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 flex flex-col items-center justify-start p-6 pt-4 gap-6 overflow-y-auto w-full">
+<!-- ID Card Component -->
+<div class="w-full bg-white dark:bg-[#1A2632] rounded-[2rem] shadow-xl overflow-hidden flex flex-col relative border border-gray-100 dark:border-gray-800">
+<!-- Blue Accent Header on Card -->
+<div class="h-24 bg-primary w-full absolute top-0 left-0 z-0"></div>
+<!-- Profile Section -->
+<div class="relative z-10 flex flex-col items-center pt-10 px-6">
+<!-- Avatar with border to separate from background -->
+<div class="w-24 h-24 rounded-full border-4 border-white dark:border-[#1A2632] shadow-sm bg-gray-200 overflow-hidden" data-alt="Student profile portrait" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBQiQhE3N-losBkVjSVATrMEj4BfS6umCc65KMItbe1Sy_rswFOk4LLMcEdfoBd_boZsWWgQocLLCoRAFEsBwEHZJ5kqRuCA8wyqqebCIgNCgjCLmVw1RyFX1Cn3BWcHmO7P8kwQpKOnbsiu7tyiaS461H376_Dw3uZ5y5XE_qsv-GnMqGoChjWzv8VSlgEffS5PGg4_AZ7TRdg6NKCUxP_oSu32E-QpzKIHvIYUoVg6P2inbUsYL23iRWCeSq1DEburTZUW4_I_Q'); background-size: cover; background-position: center;">
+</div>
+<div class="mt-3 flex flex-col items-center text-center">
+<h3 class="text-[#111518] dark:text-white text-2xl font-bold leading-tight">Max Mustermann</h3>
+<span class="mt-1 px-3 py-1 bg-primary/10 dark:bg-primary/30 text-primary dark:text-blue-300 text-sm font-semibold rounded-full">
+                            Klasse 10B
+                        </span>
+</div>
+</div>
+<!-- QR Code Section -->
+<div class="flex flex-col items-center justify-center py-8 px-6">
+<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+<!-- Simulated QR Code -->
+<div class="w-48 h-48 bg-white flex items-center justify-center overflow-hidden" data-alt="Library ID QR code pattern" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCBIecbbHE7jSQiqxA8gx1cU-lqnv-6IKMRNDeJe2OTQe2M0GQsa93cf1WZvUzOFaMPCTDmYI_8reZiMBf6lGXAjRwjHRBf7flVMKUo2GDq_yvB9LrI_mPwIPnbSr-VEaV-3FkDBJl1Huij3dL93n56HzmCod3Db9q4kSMBS3Z_7NtWMIY98hyQolz7ooGhaBQI5yh820p1-uBKHuqc4V27lG9UdfD4Ebo4zNy_os67siGmFS5MemxJrN2B5JE-TBgm7skwUNJKZQ'); background-size: contain; background-repeat: no-repeat; background-position: center;">
+</div>
+</div>
+<!-- Validity Badge -->
+<div class="mt-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-[20px]">verified</span>
+<p class="text-[#617789] dark:text-gray-400 text-sm font-medium">Gültig bis: <span class="text-[#111518] dark:text-gray-200 font-semibold">31.07.2024</span></p>
+</div>
+</div>
+<!-- Decorative Bottom Curve (Optional visual flair) -->
+<div class="h-2 w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+</div>
+<!-- Instruction Text -->
+<div class="flex flex-col items-center gap-4 w-full px-4">
+<p class="text-[#617789] dark:text-gray-400 text-base font-normal leading-relaxed text-center max-w-[280px]">
+                    Bitte zeigen Sie diesen Code dem Bibliothekspersonal zum Scannen.
+                </p>
+</div>
+<!-- Spacer to push button down if needed, but flex gap handles it nicely -->
+<div class="flex-grow"></div>
+<!-- Action Button -->
+<button class="w-full bg-[#111518] dark:bg-white text-white dark:text-[#111518] h-14 rounded-full font-bold text-base flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-lg mb-4">
+<span class="material-symbols-outlined text-[24px]">wallet</span>
+                Zu Apple Wallet hinzufügen
+            </button>
+</div>
+</div>
+</body></html>

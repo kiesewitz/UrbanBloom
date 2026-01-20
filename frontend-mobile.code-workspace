@@ -1,0 +1,108 @@
+{
+	"folders": [
+		{
+			"path": "frontend-mobile"
+		},
+		{
+			"path": "docs"
+		},
+		{
+			"path": ".agent"
+		},
+		{
+			"path": ".bmad-core"
+		},
+		{
+			"path": ".github"
+		}
+	],
+	"extensions": {
+		"recommendations": [
+			"Dart-Code.dart-code",
+			"Dart-Code.flutter"
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Frontend Mobile: Flutter Build APK",
+				"type": "shell",
+				"command": "flutter",
+				"args": [
+					"build",
+					"apk",
+					"--release"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:frontend-mobile}/frontend-mobile"
+				},
+				"group": {
+					"kind": "build"
+				}
+			},
+			{
+				"label": "Frontend Mobile: Flutter Build iOS",
+				"type": "shell",
+				"command": "flutter",
+				"args": [
+					"build",
+					"ios",
+					"--release"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:frontend-mobile}/frontend-mobile"
+				},
+				"group": {
+					"kind": "build"
+				}
+			},
+			{
+				"label": "Frontend Mobile: Flutter Run Debug on Chrome",
+				"type": "shell",
+				"command": "flutter",
+				"args": [
+					"run",
+					"-d",
+					"chrome"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:frontend-mobile}/frontend-mobile"
+				},
+				"isBackground": true,
+				"group": {
+					"kind": "none"
+				}
+			},
+			{
+				"label": "Frontend Mobile: Flutter Test",
+				"type": "shell",
+				"command": "flutter",
+				"args": [
+					"test",
+					"-v"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:frontend-mobile}/frontend-mobile"
+				},
+				"group": {
+					"kind": "test"
+				}
+			},
+			{
+				"label": "Frontend Mobile: Stop Flutter",
+				"type": "shell",
+				"command": "taskkill",
+				"args": [
+					"/F",
+					"/IM",
+					"flutter.exe"
+				],
+				"isBackground": false,
+				"group": {
+					"kind": "none"
+				}
+			}
+		]
+	}
+}

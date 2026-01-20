@@ -1,0 +1,134 @@
+name: schoollibrary-dev
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-schoollibrary_db}
+      POSTGRES_USER: ${DB_USER:-dev_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password}
+      TZ: Europe/Berlin
+      PGPORT: ${DB_PORT:-5432}
+    ports:
+      - "${DB_PORT:-5432}:${DB_PORT:-5432}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U ${DB_USER:-dev_user} -p ${DB_PORT:-5432}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - schoollibrary-network
+
+  # Keycloak Identity Provider
+  keycloak:
+    image: keycloak/keycloak:26.4.7
+    restart: unless-stopped
+    volumes:
+      - ./themes:/opt/keycloak/themes:ro
+      - ./config/keycloak:/opt/keycloak/data/import:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: Europe/Berlin
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:${DB_PORT:-5432}/${DB_NAME:-schoollibrary_db}
+      KC_DB_USERNAME: ${DB_USER:-dev_user}
+      KC_DB_PASSWORD: ${DB_PASSWORD:-dev_password}
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: ${KEYCLOAK_PORT:-8081}
+      KC_PROXY_HEADERS: xforwarded
+      KC_IMPORT: /opt/keycloak/data/import/realm-export.json
+      KC_FEATURES: scripts
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "${KEYCLOAK_PORT:-8081}:${KEYCLOAK_PORT:-8081}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - "start-dev"
+      - "--import-realm"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "timeout 10s bash -c ':> /dev/tcp/127.0.0.1/${KEYCLOAK_PORT:-8081}' || exit 1",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 120s
+    networks:
+      - schoollibrary-network
+
+  # Mailpit for local email testing
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+    networks:
+      - schoollibrary-network
+
+  # Spring Backend
+  backend:
+    profiles: ["backend-app", "full"]
+    image: ${BACKEND_IMAGE:-schoollibrary-backend:latest}
+    restart: unless-stopped
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:${DB_PORT:-5432}/${DB_NAME:-schoollibrary_db}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-dev_user}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-dev_password}
+      - KEYCLOAK_URL=http://keycloak:${KEYCLOAK_PORT:-8081}
+      - KEYCLOAK_REALM=schoollibrary
+      - SPRING_MAIL_HOST=mailpit
+      - SPRING_MAIL_PORT=1025
+    ports:
+      - "${BACKEND_PORT:-8080}:${BACKEND_PORT:-8080}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - schoollibrary-network
+
+  # Web Frontend
+  frontend-web:
+    profiles: ["frontend-app", "full"]
+    image: ${FRONTEND_IMAGE:-schoollibrary-frontend-web:latest}
+    restart: unless-stopped
+    build:
+      context: ./frontend-web
+      dockerfile: Dockerfile
+    environment:
+      - PORT=${FRONTEND_PORT:-3000}
+    ports:
+      - "${FRONTEND_PORT:-3000}:${FRONTEND_PORT:-3000}"
+    depends_on:
+      - backend
+    networks:
+      - schoollibrary-network
+
+volumes:
+  postgres_data:
+
+networks:
+  schoollibrary-network:
+    driver: bridge

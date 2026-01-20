@@ -1,0 +1,6 @@
+.dashboard-organism { width:100%; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:2rem; }
+.dashboard-container { max-width:800px; width:100%; }
+.dashboard-container h1 { text-align:center; margin-bottom:0.5rem; color: var(--primary, #646cff); }
+.subtitle { text-align:center; color: #888; margin-bottom:1.5rem; font-size:1.1em; }
+.info-card { background: rgba(255,255,255,0.05); border-radius:12px; padding:1rem; margin-top:1.25rem; }
+.info-card code { background: rgba(100,108,255,0.2); padding:0.25rem 0.5rem; border-radius:4px; }

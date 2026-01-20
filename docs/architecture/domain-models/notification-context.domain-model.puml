@@ -1,0 +1,219 @@
+@startuml notification-context-domain-model
+!define AGGREGATE_BG #90EE90
+!define ENTITY_BG #ADD8E6
+!define VALUE_OBJECT_BG #FFFFE0
+!define SERVICE_BG #F5DEB3
+!define REPOSITORY_BG #D3D3D3
+
+skinparam class {
+    BackgroundColor<<AggregateRoot>> AGGREGATE_BG
+    BackgroundColor<<Entity>> ENTITY_BG
+    BackgroundColor<<ValueObject>> VALUE_OBJECT_BG
+    BackgroundColor<<DomainService>> SERVICE_BG
+    BackgroundColor<<Repository>> REPOSITORY_BG
+    BorderColor #505050
+    ArrowColor #333333
+}
+
+title NOTIFICATION CONTEXT - Domain Model (Supporting Subdomain)
+
+package "Notification Context" {
+
+    ' ========== NOTIFICATION AGGREGATE ==========
+    class Notification <<AggregateRoot>> {
+        + notificationId: UUID
+        + userId: UUID
+        + recipientEmail: String
+        + channel: NotificationChannel
+        + type: NotificationType
+        + subject: String
+        + body: String
+        + status: NotificationStatus
+        + sentAt: Instant?
+        + failureReason: String?
+        + retryCount: Integer
+        + maxRetries: Integer
+        + eventId: String
+        --
+        + {static} createNotification(userId, email, channel, type, subject, body, eventId): Notification
+        + markSent(): void
+        + recordFailure(reason): void
+        + retry(): void
+        + isPending(): Boolean
+        + isFailed(): Boolean
+        + canRetry(): Boolean
+    }
+
+    class NotificationChannel <<ValueObject>> {
+        + Email
+        + Push
+    }
+
+    class NotificationType <<ValueObject>> {
+        + CheckoutConfirmation
+        + ReservationReady
+        + ReminderUpcoming
+        + ReminderOverdue
+        + ReminderEscalation
+        + PreReservationCreated
+        + PreReservationResolved
+        + LoanRenewed
+        + ClassSetCheckedOut
+        + ClassSetReturned
+    }
+
+    class NotificationStatus <<ValueObject>> {
+        + Pending
+        + Sent
+        + Failed
+    }
+
+    class NotificationTemplate <<ValueObject>> {
+        + template: String
+        + placeholders: Map<String, String>
+        --
+        + render(data): String
+        + getSubject(): String
+        + getBody(): String
+    }
+
+    class RecipientInfo <<ValueObject>> {
+        + userId: UUID
+        + email: String
+        + preferences: NotificationPreferences?
+        --
+        + validate(): Boolean
+    }
+
+    class NotificationPreferences <<ValueObject>> {
+        + emailEnabled: Boolean
+        + pushEnabled: Boolean
+        + mutedTypes: Set<NotificationType>
+        --
+        + isChannelEnabled(channel): Boolean
+        + isMuted(type): Boolean
+    }
+
+    ' ========== DOMAIN SERVICES ==========
+    class NotificationComposerService <<DomainService>> {
+        + composeFromEvent(event, type, templates): Notification
+        + deduplicate(eventId, userId, type): Boolean
+        + queue(notification): void
+    }
+
+    class NotificationDeliveryService <<DomainService>> {
+        + send(notification): void
+        + sendEmail(notification): void
+        + sendPush(notification): void
+        + handleFailure(notification, error): void
+    }
+
+    class NotificationRetryService <<DomainService>> {
+        + scheduleRetry(notification): void
+        + processRetryQueue(): void
+        + calculateBackoff(retryCount): Duration
+    }
+
+    ' ========== EVENT HANDLERS ==========
+    class NotificationEventHandler <<DomainService>> {
+        + onMediaCheckedOut(event): void
+        + onMediaReturned(event): void
+        + onMediaReserved(event): void
+        + onPreReservationCreated(event): void
+        + onPreReservationResolved(event): void
+        + onLoanRenewed(event): void
+        + onClassSetCheckedOut(event): void
+        + onClassSetReturned(event): void
+        + onReminderTriggered(event): void
+    }
+
+    ' ========== REPOSITORIES ==========
+    class NotificationRepository <<Repository>> {
+        + findById(notificationId): Notification?
+        + findPendingForRetry(): List<Notification>
+        + findByEventId(eventId): List<Notification>
+        + save(notification): void
+    }
+
+    ' ========== RELATIONSHIPS ==========
+    
+    ' Notification Aggregate
+    Notification --> NotificationChannel : uses
+    Notification --> NotificationType : uses
+    Notification --> NotificationStatus : uses
+    Notification *-- RecipientInfo : contains
+    
+    ' Value Objects
+    RecipientInfo *-- NotificationPreferences : contains
+    NotificationTemplate --> NotificationType : templates for
+    
+    ' Services to Aggregates
+    NotificationComposerService ..> Notification : creates
+    NotificationComposerService ..> NotificationTemplate : uses
+    
+    NotificationDeliveryService ..> Notification : modifies
+    NotificationDeliveryService ..> NotificationChannel : uses
+    
+    NotificationRetryService ..> Notification : retries
+    
+    NotificationEventHandler ..> NotificationComposerService : uses
+    NotificationEventHandler ..> Notification : creates
+    
+    ' Repositories
+    NotificationRepository ..> Notification
+}
+
+note right of Notification
+  **Aggregate Root**
+  Nachrichtenversand mit Retry-Logik
+  und Deduplication
+  
+  **Business Key:** (eventId, userId, type)
+  → nur 1 Notification pro Event+User+Type
+  
+  **Retry-Logic:**
+  - maxRetries: 3
+  - Exponential Backoff: 2^retryCount min
+end note
+
+note right of NotificationEventHandler
+  **Event-Driven Architecture**
+  Subscribes zu Domain Events aus:
+  - Lending Context (8 Events)
+  - Reminding Context (1 Event)
+  
+  Erstellt Notifications für alle
+  relevanten User-Actions
+end note
+
+note bottom of NotificationComposerService
+  **Deduplication:**
+  Prüft ob bereits eine Notification
+  für (eventId, userId, type) existiert
+  
+  Verhindert Duplikate bei
+  mehrfachem Event-Publishing
+end note
+
+note bottom of NotificationChannel
+  **Fallback-Strategie:**
+  - Email: Immer verfügbar (Standard)
+  - Push: Optional, kann deaktiviert sein
+  
+  Bei Push-Fehler: Fallback zu Email
+end note
+
+legend right
+  |<back:AGGREGATE_BG>   </back>| Aggregate Root |
+  |<back:ENTITY_BG>   </back>| Entity |
+  |<back:VALUE_OBJECT_BG>   </back>| Value Object |
+  |<back:SERVICE_BG>   </back>| Domain Service |
+  |<back:REPOSITORY_BG>   </back>| Repository |
+  
+  **Beziehungen:**
+  <i>..></i> Lose Kopplung
+  <i>*--</i> Komposition (enthält)
+  <i>--></i> Verwendung
+endlegend
+
+@enduml

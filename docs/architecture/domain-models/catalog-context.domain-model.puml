@@ -1,0 +1,238 @@
+@startuml catalog-context-domain-model
+!define AGGREGATE_BG #90EE90
+!define ENTITY_BG #ADD8E6
+!define VALUE_OBJECT_BG #FFFFE0
+!define SERVICE_BG #F5DEB3
+!define REPOSITORY_BG #D3D3D3
+
+skinparam class {
+    BackgroundColor<<AggregateRoot>> AGGREGATE_BG
+    BackgroundColor<<Entity>> ENTITY_BG
+    BackgroundColor<<ValueObject>> VALUE_OBJECT_BG
+    BackgroundColor<<DomainService>> SERVICE_BG
+    BackgroundColor<<Repository>> REPOSITORY_BG
+    BorderColor #505050
+    ArrowColor #333333
+}
+
+title CATALOG CONTEXT - Domain Model (Supporting Subdomain)
+
+package "Catalog Context" {
+
+    ' ========== MEDIA AGGREGATE ==========
+    class Media <<AggregateRoot>> {
+        + mediaId: UUID
+        + title: String
+        + author: String
+        + isbn: String?
+        + publisher: String
+        + publicationYear: Integer?
+        + category: MediaCategory
+        + language: String
+        + description: String?
+        + coverImageUrl: String?
+        + totalCopies: Integer
+        + availableCopies: Integer
+        --
+        + {static} addMedia(title, author, isbn, category, year): Media
+        + addCopy(): void
+        + removeCopy(): void
+        + updateAvailableCopies(newCount): void
+        + isAvailable(): Boolean
+        + getAvailableCopies(): Integer
+    }
+
+    class MediaMetadata <<ValueObject>> {
+        + title: String
+        + author: String
+        + isbn: ISBN?
+        + publisher: String
+        + publicationYear: Integer?
+        --
+        + toDisplayString(): String
+    }
+
+    class ISBN <<ValueObject>> {
+        + value: String
+        --
+        + validate(): Boolean
+        + format(): String
+    }
+
+    class MediaCategory <<ValueObject>> {
+        + Fiction
+        + NonFiction
+        + Reference
+    }
+
+    ' ========== MEDIACOPY AGGREGATE ==========
+    class MediaCopy <<AggregateRoot>> {
+        + copyId: UUID
+        + mediaId: UUID
+        + barcode: String
+        + shelfLocation: String?
+        + availabilityStatus: AvailabilityStatus
+        + condition: MediaCondition
+        + acquisitionDate: LocalDate
+        + lastInventoryCheck: LocalDate?
+        + notes: String?
+        --
+        + {static} addCopy(mediaId, barcode, condition): MediaCopy
+        + updateAvailabilityStatus(newStatus): void
+        + markDamaged(notes): void
+        + updateCondition(newCondition): void
+        + updateShelfLocation(location): void
+        + updateInventory(lastCheckDate): void
+        + isAvailable(): Boolean
+        + isDamaged(): Boolean
+    }
+
+    class Barcode <<ValueObject>> {
+        + value: String
+        --
+        + validate(): Boolean
+        + format(): String
+    }
+
+    class AvailabilityStatus <<ValueObject>> {
+        + Available
+        + CheckedOut
+        + Reserved
+        + OnHold
+        + Damaged
+    }
+
+    class MediaCondition <<ValueObject>> {
+        + Excellent
+        + Good
+        + Fair
+        + Poor
+    }
+
+    class ShelfLocation <<ValueObject>> {
+        + value: String
+        --
+        + parse(): Location
+        + format(): String
+    }
+
+    ' ========== DOMAIN SERVICES ==========
+    class CatalogInventoryService <<DomainService>> {
+        + addMediaWithCopies(metadata, copies): Media
+        + addCopy(mediaId, barcode): MediaCopy
+        + markDamaged(barcode, notes): void
+        + archiveMedia(mediaId): void
+        + suggestWeedingCandidates(since): List<Media>
+    }
+
+    class MediaSearchService <<DomainService>> {
+        + searchMedia(query, filters): List<Media>
+        + getMediaDetails(mediaId): Media
+        + checkAvailability(mediaId): Boolean
+    }
+
+    ' ========== REPOSITORIES ==========
+    class MediaRepository <<Repository>> {
+        + findById(mediaId): Media?
+        + findByTitleOrAuthor(query): List<Media>
+        + findByCategory(category): List<Media>
+        + findByISBN(isbn): Media?
+        + save(media): void
+    }
+
+    class MediaCopyRepository <<Repository>> {
+        + findById(copyId): MediaCopy?
+        + findByBarcode(barcode): MediaCopy?
+        + findByMediaId(mediaId): List<MediaCopy>
+        + findAvailableByMediaId(mediaId): List<MediaCopy>
+        + save(mediaCopy): void
+    }
+
+    ' ========== EVENT HANDLERS ==========
+    class CatalogEventHandler <<DomainService>> {
+        + onMediaCheckedOut(event): void
+        + onMediaReturned(event): void
+        + onMediaReserved(event): void
+    }
+
+    ' ========== RELATIONSHIPS ==========
+    
+    ' Media Aggregate
+    Media *-- MediaMetadata : contains
+    MediaMetadata --> ISBN : uses
+    Media --> MediaCategory : uses
+    
+    ' MediaCopy Aggregate
+    MediaCopy *-- Barcode : contains
+    MediaCopy --> AvailabilityStatus : uses
+    MediaCopy --> MediaCondition : uses
+    MediaCopy --> ShelfLocation : uses
+    MediaCopy ..> Media : references by ID
+    
+    ' Services to Aggregates
+    CatalogInventoryService ..> Media : creates/modifies
+    CatalogInventoryService ..> MediaCopy : creates/modifies
+    
+    MediaSearchService ..> Media : queries
+    MediaSearchService ..> MediaCopy : queries
+    
+    CatalogEventHandler ..> MediaCopy : updates
+    CatalogEventHandler ..> Media : updates
+    
+    ' Repositories
+    MediaRepository ..> Media
+    MediaCopyRepository ..> MediaCopy
+}
+
+note right of Media
+  **Aggregate Root**
+  Katalog-Eintrag für abstrakte Werke
+  Verwaltung von Metadaten und
+  Gesamtbestandszählung
+  
+  **Read Model** für Suche
+end note
+
+note right of MediaCopy
+  **Aggregate Root**
+  Physisches Exemplar mit eigenem
+  Verfügbarkeitsstatus und Zustand
+  
+  **Status-Updates** erfolgen nur
+  via Events aus Lending Context
+end note
+
+note bottom of AvailabilityStatus
+  **State Machine:**
+  Available → CheckedOut
+  Available → Reserved
+  CheckedOut → Available
+  Reserved → CheckedOut
+  Reserved → Available (Expire)
+  * → Damaged (terminal)
+end note
+
+note bottom of CatalogEventHandler
+  **Event-Driven Updates**
+  Reagiert auf Events aus Lending Context:
+  - MediaCheckedOut → CheckedOut
+  - MediaReturned → Available
+  - MediaReserved → Reserved
+  
+  Transaktionale Outbox empfohlen
+end note
+
+legend right
+  |<back:AGGREGATE_BG>   </back>| Aggregate Root |
+  |<back:ENTITY_BG>   </back>| Entity |
+  |<back:VALUE_OBJECT_BG>   </back>| Value Object |
+  |<back:SERVICE_BG>   </back>| Domain Service |
+  |<back:REPOSITORY_BG>   </back>| Repository |
+  
+  **Beziehungen:**
+  <i>..></i> Lose Kopplung (Referenz über ID)
+  <i>*--</i> Komposition (Aggregat enthält VO)
+  <i>--></i> Verwendung (Value Object)
+endlegend
+
+@enduml

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Buch Detailansicht</title>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- CRITICAL: Material Symbols Link -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0f64a9",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101a22",
+            },
+            fontFamily: {
+              "display": ["Spline Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111518] dark:text-white overflow-hidden h-screen flex justify-center">
+<div class="relative flex h-full w-full max-w-[480px] flex-col bg-white dark:bg-background-dark shadow-2xl overflow-hidden rounded-none sm:rounded-xl my-0 sm:my-4 ring-1 ring-black/5">
+<!-- TopAppBar -->
+<div class="flex items-center bg-white dark:bg-background-dark p-4 pb-2 justify-between shrink-0 z-20">
+<div class="flex size-12 shrink-0 items-center justify-start cursor-pointer group">
+<span class="material-symbols-outlined text-[#111518] dark:text-white group-hover:text-primary transition-colors text-2xl">arrow_back_ios_new</span>
+</div>
+<h2 class="text-[#111518] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-4">Details</h2>
+<div class="flex w-8 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 bg-transparent text-[#111518] dark:text-white gap-2 min-w-0 p-0 hover:bg-background-light dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-2xl">bookmark_border</span>
+</button>
+</div>
+</div>
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto pb-28 scrollbar-hide">
+<!-- Hero Image Section -->
+<div class="flex w-full grow bg-white dark:bg-background-dark p-6 justify-center">
+<div class="w-48 gap-1 overflow-hidden bg-white dark:bg-white/5 rounded-xl flex shadow-[0_20px_40px_-12px_rgba(0,0,0,0.2)] dark:shadow-black/50 transition-transform hover:scale-[1.02] duration-300">
+<div class="w-full bg-center bg-no-repeat bg-cover aspect-[2/3] rounded-none flex-1" data-alt="Book cover of The Great Gatsby featuring abstract eyes and city lights" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA7nULCs2wvwP3iJadbdBSEt_iXnrqV1GE6EG3vxeJHpjKqBT70rIGfaYcfwaufuYbt7po8IcIUaEyv22o1x_-XhHLr7VY8-hO1ICBXhfIJM_vO607ELulVmY7l3rwQl23N1bTEGqwjLIC24xbhQaZJ8vn5P02pKydJ_qHBPOmt5otjwcS9qElVsxzc7UNH3N_d3XVQsgPf3JVxRJtrZV3Cm_URHAdXdas8iqeP0tYB-j4vKDAhc3GuW3r57Y_xMS3duOByx8nQfQ");'>
+</div>
+</div>
+</div>
+<!-- Title & Author -->
+<div class="flex flex-col items-center px-4 pb-2">
+<h1 class="text-[#111518] dark:text-white tracking-tight text-[28px] font-bold leading-tight text-center pb-2 pt-2">Der große Gatsby</h1>
+<h2 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em] text-center pb-4">F. Scott Fitzgerald</h2>
+</div>
+<!-- Availability Chip -->
+<div class="flex justify-center mb-8 px-4">
+<div class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-green-50 dark:bg-green-900/20 pl-4 pr-5 ring-1 ring-green-100 dark:ring-green-900/40">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-[20px]">check_circle</span>
+<p class="text-green-700 dark:text-green-400 text-sm font-bold leading-normal">Verfügbar</p>
+</div>
+</div>
+<!-- Metadata Grid -->
+<div class="grid grid-cols-3 gap-3 px-5 mb-8">
+<!-- Stat 1 -->
+<div class="flex flex-col items-center justify-center p-4 rounded-2xl bg-background-light dark:bg-white/5 gap-1">
+<span class="material-symbols-outlined text-primary text-2xl mb-1">auto_stories</span>
+<span class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide">Seiten</span>
+<span class="text-[#111518] dark:text-white font-bold text-lg">208</span>
+</div>
+<!-- Stat 2 -->
+<div class="flex flex-col items-center justify-center p-4 rounded-2xl bg-background-light dark:bg-white/5 gap-1">
+<span class="material-symbols-outlined text-primary text-2xl mb-1">shelves</span>
+<span class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide">Regal</span>
+<span class="text-[#111518] dark:text-white font-bold text-lg">A4</span>
+</div>
+<!-- Stat 3 -->
+<div class="flex flex-col items-center justify-center p-4 rounded-2xl bg-background-light dark:bg-white/5 gap-1">
+<span class="material-symbols-outlined text-primary text-2xl mb-1">style</span>
+<span class="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wide">Genre</span>
+<span class="text-[#111518] dark:text-white font-bold text-lg">Roman</span>
+</div>
+</div>
+<!-- Synopsis -->
+<div class="px-6 mb-4">
+<h3 class="text-[#111518] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] pb-3">Klappentext</h3>
+<p class="text-gray-600 dark:text-gray-300 text-base font-normal leading-7">
+                    Im Sommer 1922 zieht der junge Nick Carraway nach New York und wird Nachbar des mysteriösen Millionärs Jay Gatsby. Gatsby veranstaltet legendäre Partys in seiner Villa auf Long Island, doch hinter dem Glanz verbirgt sich eine tiefe Sehnsucht nach der Vergangenheit und einer verlorenen Liebe. 
+                </p>
+<button class="mt-2 text-primary font-semibold text-sm hover:underline">Mehr lesen</button>
+</div>
+<div class="h-6"></div>
+</div>
+<!-- Sticky Action Bar -->
+<div class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-background-dark/95 backdrop-blur-sm border-t border-gray-100 dark:border-white/5 p-4 pb-8 z-30">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 bg-primary hover:bg-primary/90 active:bg-primary/95 text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0 shadow-lg shadow-primary/25 transition-all transform active:scale-[0.98]">
+<span class="material-symbols-outlined">event_available</span>
+<span class="truncate">Jetzt Reservieren</span>
+</button>
+</div>
+</div>
+</body></html>

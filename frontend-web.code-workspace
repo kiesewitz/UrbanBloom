@@ -1,0 +1,120 @@
+{
+	"folders": [
+		{
+			"path": "frontend-web"
+		},
+		{
+			"path": "docs"
+		},
+		{
+			"path": ".agent"
+		},
+		{
+			"path": ".bmad-core"
+		},
+		{
+			"path": ".github"
+		}
+	],
+	"extensions": {
+		"recommendations": [
+			"dbaeumer.vscode-eslint",
+			"esbenp.prettier-vscode",
+			"biomejs.biome"
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Frontend Web: Install Dependencies",
+				"type": "shell",
+				"command": "npm",
+				"args": [
+					"install"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:frontend-web}/frontend-web"
+				},
+				"group": {
+					"kind": "build"
+				}
+			},
+			{
+				"label": "Frontend Web: Build Production",
+				"type": "shell",
+				"command": "npm",
+				"args": [
+					"run",
+					"build"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:frontend-web}/frontend-web"
+				},
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				}
+			},
+			{
+				"label": "Frontend Web: Dev Server",
+				"type": "shell",
+				"command": "npm",
+				"args": [
+					"run",
+					"dev"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:frontend-web}/frontend-web"
+				},
+				"isBackground": true,
+				"group": {
+					"kind": "none"
+				}
+			},
+			{
+				"label": "Frontend Web: Test",
+				"type": "shell",
+				"command": "npm",
+				"args": [
+					"test"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:frontend-web}/frontend-web"
+				},
+				"group": {
+					"kind": "test"
+				}
+			},
+			{
+				"label": "Frontend Web: Lint",
+				"type": "shell",
+				"command": "npm",
+				"args": [
+					"run",
+					"lint"
+				],
+				"options": {
+					"cwd": "${workspaceFolder:frontend-web}/frontend-web"
+				},
+				"group": {
+					"kind": "test"
+				}
+			},
+			{
+				"label": "Frontend Web: Stop Dev Server",
+				"type": "shell",
+				"command": "taskkill",
+				"args": [
+					"/F",
+					"/IM",
+					"node.exe"
+				],
+				"isBackground": false,
+				"group": {
+					"kind": "none"
+				}
+			}
+		]
+	}
+}
