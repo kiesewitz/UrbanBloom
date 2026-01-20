@@ -97,8 +97,8 @@ paths:
   /auth/login:
     post:
       tags: [Authentication]
-      summary: Login with email and password
-      description: Authenticates user and returns JWT tokens
+      summary: User login
+      description: Authenticates a user and returns a JWT token
       security: []  # No auth required for login
       requestBody:
         required: true
@@ -108,39 +108,40 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Login successful
+          description: Successful login
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
+                $ref: '#/components/schemas/LoginResponse'
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          description: Invalid credentials
 
-  /auth/refresh:
+  /auth/logout:
     post:
       tags: [Authentication]
-      summary: Refresh access token
-      description: Exchanges refresh token for new access token
-      security: []
+      summary: User logout
+      description: Logs out the user by invalidating their session
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Successfully logged out
+
+  /auth/password-reset:
+    post:
+      tags: [Authentication]
+      summary: Request password reset
+      description: Sends a password reset email to the user
+      security: []  # No auth required for password reset request
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [refreshToken]
-              properties:
-                refreshToken:
-                  type: string
+              $ref: '#/components/schemas/PasswordResetRequest'
       responses:
         '200':
-          description: Token refreshed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+          description: Password reset email sent
 
   /users/{userId}:
     get:
@@ -1036,7 +1037,6 @@ components:
 
     LoginRequest:
       type: object
-      required: [email, password]
       properties:
         email:
           type: string
@@ -1044,6 +1044,16 @@ components:
         password:
           type: string
           format: password
+      required:
+        - email
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT token
 
     AuthResponse:
       type: object
@@ -1127,6 +1137,15 @@ components:
           type: boolean
         marketingConsent:
           type: boolean
+
+    PasswordResetRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+        - email
 
     # ===== Action / Observation Schemas =====
 
