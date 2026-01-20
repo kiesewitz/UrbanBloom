@@ -31,7 +31,7 @@ C4Context
     Person(admin, "City Admin", "Manages and verifies actions")
     
     System(mobile, "Mobile App", "Flutter iOS/Android app")
-    System(web, "Admin Web Panel", "Flutter Web admin interface")
+    System(web, "Admin Web Panel", "React + Next.js Web admin interface")
     System(backend, "Backend API", "Spring Boot REST API")
     System_Ext(maps, "Map Service", "Location data")
     System_Ext(auth, "Auth Provider", "JWT authentication")
@@ -95,11 +95,12 @@ C4Context
 - **Testing**: flutter_test, patrol (integration tests)
 
 ### Frontend Web
-- **Framework**: Flutter Web 3.16+
-- **Charts**: fl_chart
-- **Tables**: data_table_2
-- **Export**: csv package
-- **State Management**: Riverpod
+- **Framework**: Next.js (App Router) mit React und TypeScript  
+- **Charts**: React-basierte Chart-Library (z. B. Recharts)  
+- **Tables**: React-Tabellenkomponenten (z. B. TanStack Table)  
+- **Export**: CSV-Export über Utility-Funktionen (z. B. Download als `.csv`)  
+- **State Management**: React Hooks (lokaler State), React Query für Server-State und Context für geteilten UI-State  
+
 
 ### DevOps
 - **CI/CD**: GitHub Actions

@@ -25,6 +25,7 @@ frontend-web/storybook-static/
 frontend-web/*.tsbuildinfo
 frontend-web/.eslintcache
 
+<<<<<<< HEAD
 # Flutter / Dart
 **/.dart_tool/
 **/.flutter-plugins
@@ -33,6 +34,85 @@ frontend-web/.eslintcache
 
 # IDE
 **/*.iml
+=======
+
+### NextJS ###
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+### react ###
+.DS_*
+*.log
+logs
+**/*.backup.*
+**/*.back.*
+
+node_modules
+bower_components
+
+*.sublime*
+
+psd
+thumb
+sketch
+
+# End of https://www.toptal.com/developers/gitignore/api/nextjs,react
+
+# Java / Maven / Spring Boot
+server/target/
+server/.mvn/wrapper/maven-wrapper.jar
+server/.mvn/
+server/mvnw
+server/mvnw.cmd
+server/*.iml
+server/.idea/
+server/.classpath
+server/.project
+server/.settings/
+server/bin/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.directory
+
+# IDE (aber nicht .vscode/)
+>>>>>>> 5c674722adfe245b69a8d8049a8a05287eb5bb43
 .idea/
 
 # Self-hosted GitHub Runner

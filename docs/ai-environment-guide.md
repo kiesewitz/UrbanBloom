@@ -92,16 +92,19 @@ UrbanBloom has **6 specialized agents** designed for different aspects of develo
 
 ### 4. Web Admin CDD Agent (`@web-admin-cdd`)
 **Location**: `.github/agents/web-admin-cdd.agent.md`  
-**Purpose**: Flutter Web admin panel development  
+**Purpose**: Next.js/React-based admin web development for the UrbanBloom admin panel  
 **Use For**:
-- Creating data tables with filtering/sorting
-- Building dashboards with KPI cards
-- Implementing analytics charts
-- CSV export functionality
+- Creating data tables with filtering/sorting/pagination
+- Building dashboards with KPI cards and overview tiles
+- Implementing analytics charts for districts, actions, and challenges
+- Adding CSV export functionality for admin reports
 
 **Example Usage**:
-```
-@web-admin-cdd Create a data table for managing actions with columns: ID, Title, User, Status, Points, Created. Include filtering by status and CSV export.
+```text
+@web-admin-cdd Create a Next.js/React data table for managing actions with columns:
+ID, Title, User, Status, Points, CreatedAt. Include filtering by status and a button
+to export the currently filtered rows as CSV.
+
 ```
 
 ---

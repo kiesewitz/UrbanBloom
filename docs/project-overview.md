@@ -18,7 +18,7 @@ UrbanBloom/
 │   ├── extensions.json
 │   └── tasks.json
 ├── mobile/                     # Flutter Mobile App (iOS/Android)
-├── admin-web/                  # Flutter Web Admin-Oberfläche
+├── admin-web/                  # React + next.js Admin-Oberfläche
 ├── server/                     # Spring Boot Backend
 ├── shared-resources/           # Gemeinsame Ressourcen
 │   ├── documentation/         # DDD-Dokumentation, User Stories
@@ -40,14 +40,15 @@ UrbanBloom/
   - Push-Benachrichtigungen
 
 ### Admin Web (`admin-web/`)
-- **Technologie**: Flutter Web
-- **Zielplattform**: Webbrowser (Desktop)
-- **Zweck**: Admin-Oberfläche für Stadtverwaltung
-- **Hauptfunktionen**:
-  - Bezirksfortschritt einsehen
-  - Bezirke vergleichen
-  - Challenges erstellen und verwalten
-  - Reports generieren und exportieren
+- **Technologie**: Next.js (App Router) mit React und TypeScript  
+- **Zielplattform**: Webbrowser (Desktop, optional Tablet)  
+- **Zweck**: Admin-Oberfläche für die Stadtverwaltung  
+- **Hauptfunktionen**:  
+  - Fortschritt der Bezirke einsehen (KPIs, Statistiken, Karten/Listen)  
+  - Bezirke vergleichen (Ranking, Filter, Zeitverläufe)  
+  - Challenges erstellen, bearbeiten, aktivieren/deaktivieren  
+  - Reports und Auswertungen generieren und exportieren (z. B. CSV/PDF)  
+
 
 ### Backend Server (`server/`)
 - **Technologie**: Spring Boot (Java)
@@ -102,20 +103,19 @@ code urbanbloom-mobile.code-workspace
 
 ### 3. Web Workspace (`urbanbloom-web.code-workspace`)
 
-**Verwendung**: Fokussierte Admin Web Entwicklung
+**Verwendung**: Fokussierte Admin-Web-Entwicklung (Next.js + React)
 
 Öffnet nur:
-- Admin Web Ordner
-- Shared Resources
+- den `admin-web` Ordner
+- gemeinsame Ressourcen (z. B. `shared-resources`)
 
 **Öffnen**:
 ```bash
 code urbanbloom-web.code-workspace
-```
 
 **Vorteile**:
-- Optimiert für Flutter Web Entwicklung
-- Browser-spezifische Debug-Konfigurationen
+ - Optimiert für die Entwicklung des Admin Web mit Next.js und React
+ - Klare Trennung vom Mobile- und Backend-Code
 
 ### 4. Server Workspace (`urbanbloom-server.code-workspace`)
 
