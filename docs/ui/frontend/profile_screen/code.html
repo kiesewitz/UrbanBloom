@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UrbanBloom - User Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0ff06d",
+                        "background-light": "#f5f8f7",
+                        "background-dark": "#102218",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(15, 240, 109, 0.3);
+        }
+        .glass-nav {
+            background: rgba(16, 34, 24, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen pb-24">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-50 bg-background-light dark:bg-background-dark/90 backdrop-blur-md">
+<div class="flex items-center p-4 justify-between">
+<div class="flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined text-slate-900 dark:text-white cursor-pointer">arrow_back_ios</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Profile</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex cursor-pointer items-center justify-center rounded-xl h-12 w-12 bg-transparent text-slate-900 dark:text-white">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center p-6 gap-4">
+<div class="relative">
+<div class="size-32 rounded-full border-4 border-primary p-1 neon-glow">
+<div class="w-full h-full rounded-full bg-cover bg-center" data-alt="Portrait of a young smiling urban gardener" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAnRGarlnz8q7D2c4N96NizTDvadsEy5iFtco2Ac8RPuRUQjdy_CJRypxpUX94D0PgUR-KO41h_lb3gA7gbF_D-IvUUCg9ggJZuM3kIoa13IO4lNZwGltDoJYafVr9wgdUiIE1kQnnTbqBbzsKGnQgZjFMANQIR4ODQffHHkT7P4pXtt7R7Zco_GF5RCXsQVckaH-mjsJsyBmo7kotGLmXEVHXeq79MqNG3jiGC73xhG2JyFXIVV0OSIT72Q5mTsm4tnsvtd4cldw4");'>
+</div>
+</div>
+<div class="absolute -bottom-2 right-0 bg-primary text-background-dark text-xs font-bold px-2 py-1 rounded-full border-2 border-background-dark">
+                LVL 12
+            </div>
+</div>
+<div class="text-center">
+<h1 class="text-3xl font-bold tracking-tight">UrbanGardener</h1>
+<p class="text-primary font-medium">Urban Explorer Rank</p>
+</div>
+<div class="flex gap-8 mt-2">
+<div class="text-center">
+<p class="text-2xl font-bold text-primary">2,450</p>
+<p class="text-xs uppercase tracking-widest opacity-60">Total Points</p>
+</div>
+<div class="w-px bg-white/10 h-10 self-center"></div>
+<div class="text-center">
+<p class="text-2xl font-bold text-primary">14</p>
+<p class="text-xs uppercase tracking-widest opacity-60">Day Streak</p>
+</div>
+</div>
+</section>
+<!-- Badges Section -->
+<section class="mt-4">
+<div class="flex items-center justify-between px-4 pb-2">
+<h3 class="text-lg font-bold tracking-tight">Earned Badges</h3>
+<span class="text-primary text-sm font-medium">View All</span>
+</div>
+<div class="grid grid-cols-2 gap-3 p-4">
+<div class="bg-primary/10 border border-primary/20 bg-cover bg-center flex flex-col gap-3 rounded-xl justify-end p-4 aspect-square group overflow-hidden relative" data-alt="Abstract green leaves pattern for Tree Planter badge" style='background-image: linear-gradient(180deg, rgba(16, 34, 24, 0) 0%, rgba(16, 34, 24, 0.9) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBFSZSBgMcDdjU6JpAj_hMvrLqD7MY8vFAdtk1k2D3AXjYJUp5l6kQFa6Nk2vAHnLPQTMuRA_HDC4GxbrAUGJVebZBxkqyG1-EHaB6rExyEjRhdFBfB4bGOSk5fT8aazbpCEG2RaVXg9er9h6sjO3qFH3KLmK-MZjmk9LN400_WJ_VZXwVpPOuyB2KTrQwmDbv_ygg-dFH8JRL6tuLYpgyWKhXXCV7HEkM_XwGsO_EnV-8zCHFRkVI1DtKZxpEpa_jlxBEz--7f72E");'>
+<span class="material-symbols-outlined text-primary absolute top-4 right-4">verified</span>
+<p class="text-white text-base font-bold leading-tight line-clamp-2">Tree Planter</p>
+</div>
+<div class="bg-primary/10 border border-primary/20 bg-cover bg-center flex flex-col gap-3 rounded-xl justify-end p-4 aspect-square group overflow-hidden relative" data-alt="City skyline at sunset for Urban Hero badge" style='background-image: linear-gradient(180deg, rgba(16, 34, 24, 0) 0%, rgba(16, 34, 24, 0.9) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuCk1Oki3LXrLCLiRMq1hLmmJ4zgBHwZx2w9s_f7_ues54_H4JRr8fPbGL8w-gogV5096t9GsP8WON2p9A9AfLSk7CHjwFyNvDJ5gylDlslc4iyAHBPQqHueXQqPKqMFv2eYh5xwLiVgh_siq0T2DEWZE2tUhvkxpDeEEYuIrJtUbP7vmUh0JDlVpXeSI7FuRi83cwzCz2EwwJcjEz7zZKM711URS8GdvdtQgLgmFPfvl6WJcbKh8YfWl8uHjEJJrEJeKsTf28wTQI0");'>
+<span class="material-symbols-outlined text-primary absolute top-4 right-4">verified</span>
+<p class="text-white text-base font-bold leading-tight line-clamp-2">Urban Hero</p>
+</div>
+<div class="bg-primary/10 border border-primary/20 bg-cover bg-center flex flex-col gap-3 rounded-xl justify-end p-4 aspect-square group overflow-hidden relative" data-alt="Microscopic view of plant cells for Oxygen Maker badge" style='background-image: linear-gradient(180deg, rgba(16, 34, 24, 0) 0%, rgba(16, 34, 24, 0.9) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDaH3Odu4Lj0Zc44AG2vv4IZEbaWR9_Y-Zz1Ys7Yo-_je8mjF8IJh3oWv42hyim65Q9cIg-6KEen9S73DYiiMcLlK81aLEFXwH_PcsSDM_UExrMbe3kwFGNBpBMmwtZEPCMrHkAmTjM0jlWxS64HgTvnthyIT1t4XFKWSlx665WRaveozaYtFX-TR7BLAOhda5Yrq4IRCyrvDG3NpxaN8UPWFePRXuzX7DKEvkkDZlaY6gnOG58LaTLutNrnnd4wzxzH4PJbdGA6PI");'>
+<span class="material-symbols-outlined text-primary absolute top-4 right-4">verified</span>
+<p class="text-white text-base font-bold leading-tight line-clamp-2">Oxygen Maker</p>
+</div>
+<div class="bg-primary/10 border border-primary/20 bg-cover bg-center flex flex-col gap-3 rounded-xl justify-end p-4 aspect-square group overflow-hidden relative grayscale" data-alt="Rich dark soil texture for Soil Guardian badge" style='background-image: linear-gradient(180deg, rgba(16, 34, 24, 0.3) 0%, rgba(16, 34, 24, 1) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBdN7yvEz9ihFW_XIkFXMW5esxIp2jAaiWAEUHO8fhB0GHqJ6rxSEI7vmk5iiGm3ZipA9ClcPVm4AySfbZk8atVqqmqh8Lhmb7l6OQTiT2B0rHoN-NWZAgwcS-jrRKLLHXdUZQC7tN8dsmMCZzusY7qpBqQsqA9xyJX6mTWckOoGp5Oa2o9fXAdCwf4hLkI8MjgqAtcNntoW_WlstJ28PlFjZ_0PgWS4DltT6Ll6UmlPE7YWTAeXJFNyDA-0N7rzGJJ3qhSYx-wjIw");'>
+<span class="material-symbols-outlined text-white/40 absolute top-4 right-4">lock</span>
+<p class="text-white/60 text-base font-bold leading-tight line-clamp-2">Soil Guardian</p>
+</div>
+</div>
+</section>
+<!-- Recent Activity Section -->
+<section class="mt-6 mb-8">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-4">Recent Activity</h3>
+<div class="flex flex-col gap-3 px-4">
+<!-- Activity Item 1 -->
+<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+<div class="size-12 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">park</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Mapped an Oak Tree</p>
+<p class="text-xs text-white/50" data-location="Central Park, NY">Central Park • 2h ago</p>
+</div>
+<div class="text-primary font-bold">+50</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+<div class="size-12 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">water_drop</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Watered Community Garden</p>
+<p class="text-xs text-white/50" data-location="Brooklyn, NY">Lower East Side • 1d ago</p>
+</div>
+<div class="text-primary font-bold">+25</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+<div class="size-12 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">groups</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Joined 'Green Roof' Mission</p>
+<p class="text-xs text-white/50" data-location="Manhattan, NY">Manhattan • 3d ago</p>
+</div>
+<div class="text-primary font-bold">+100</div>
+</div>
+</div>
+</section>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 glass-nav border-t border-white/10 px-6 py-4 z-50">
+<div class="flex items-center justify-between max-w-md mx-auto">
+<button class="flex flex-col items-center gap-1 text-white/50">
+<span class="material-symbols-outlined">map</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Map</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-white/50">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Add</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">person</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Profile</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-white/50">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Ranks</span>
+</button>
+</div>
+<!-- iOS Home Indicator Spacing -->
+<div class="h-4"></div>
+</nav>
+</body></html>
