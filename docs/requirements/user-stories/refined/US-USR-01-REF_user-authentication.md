@@ -8,17 +8,38 @@
 ## Priority
 **Must-Have** | MVP Phase 1
 
-## UI-Prototyp (Mobile)
+## UI-Prototypen
 
-- HTML: [login_für_schul-app](../../../ui/prototypes/stitch_schulbibliotheks_app/login_für_schul-app/code.html)
-- Bild:
+### Mobile App Prototypes
 
-![login_für_schul-app](../../../ui/prototypes/stitch_schulbibliotheks_app/login_für_schul-app/screen.png)
+**Login Screen**:
+- HTML: [Mobile Login](../../../ui/prototypes/mobile_app/login_screen/code.html)
+- Referenz (alt): [login_für_schul-app](../../../ui/prototypes/stitch_schulbibliotheks_app/login_für_schul-app/code.html)
 
-- HTML: [registrierung_für_schul-app](../../../ui/prototypes/stitch_schulbibliotheks_app/registrierung_für_schul-app/code.html)
-- Bild:
+**Registration Screen**:
+- HTML: [Mobile Registration](../../../ui/prototypes/mobile_app/registration_screen/code.html)
+- Referenz (alt): [registrierung_für_schul-app](../../../ui/prototypes/stitch_schulbibliotheks_app/registrierung_für_schul-app/code.html)
 
-![registrierung_für_schul-app](../../../ui/prototypes/stitch_schulbibliotheks_app/registrierung_für_schul-app/screen.png)
+**Password Reset Screen**:
+- HTML: [Mobile Password Reset](../../../ui/prototypes/mobile_app/password_reset_screen/code.html)
+- Referenz (alt): [password-reset](../../../ui/prototypes/stitch_schulbibliotheks_app/password-reset/code.html)
+
+**Profile Screen**:
+- HTML: [Mobile Profile](../../../ui/prototypes/mobile_app/profile_screen/code.html)
+
+### Admin Web Prototypes
+
+**Login Screen**:
+- HTML: [Web Login](../../../ui/frontend/login_screen/code.html)
+
+**Registration Screen**:
+- HTML: [Web Registration](../../../ui/frontend/signup_screen/code.html)
+
+**Password Reset Screen**:
+- HTML: [Web Password Reset](../../../ui/frontend/password_reset_screen/code.html)
+
+**Profile Screen**:
+- HTML: [Web Profile](../../../ui/frontend/profile_screen/code.html)
 
 ## Refinement Discussion
 

@@ -8,12 +8,27 @@
 ## Priority
 **Must-Have** | MVP Phase 1 (dependent on Keycloak availability)
 
-## UI-Prototyp (Mobile)
+## UI-Prototypen
 
-- HTML: [registrierung_für_schul-app](../../../ui/prototypes/stitch_schulbibliotheks_app/registrierung_für_schul-app/code.html)
-- Bild:
+### Mobile App Prototypes
 
-![registrierung_für_schul-app](../../../ui/prototypes/stitch_schulbibliotheks_app/registrierung_für_schul-app/screen.png)
+**Registration Screen**:
+- HTML: [Mobile Registration](../../../ui/prototypes/mobile_app/registration_screen/code.html)
+- Referenz (alt): [registrierung_für_schul-app](../../../ui/prototypes/stitch_schulbibliotheks_app/registrierung_für_schul-app/code.html)
+
+**Email Verification Feedback**:
+- HTML: [Password Reset - Success Step](../../../ui/prototypes/mobile_app/password_reset_screen/code.html) (zeigt auch Verification Success Pattern)
+
+### Admin Web Prototypes
+
+**Registration Screen** (für Admin-verwaltete Benutzer):
+- HTML: [Web Registration](../../../ui/frontend/signup_screen/code.html)
+
+### E-Mail Templates
+
+**Email Verification Template**:
+- Template: [Email Verification Template](../../../../config/keycloak/email-templates/email-verification.ftl)
+- Dokumentation: [Email Templates README](../../../../config/keycloak/email-templates/README.md)
 
 ## Summary / Motivation
 Registration has its own flows and risks (domain validation, e‑mail verification, abuse protection, role assignment). Separating it from general authentication improves clarity for implementation, testing and acceptance.

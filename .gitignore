@@ -121,6 +121,10 @@ actions-runner/
 # Secrets (never commit)
 docs/personal-token.txt
 pr_body.md
+config/keycloak/CREDENTIALS.md
+**/CREDENTIALS.md
+**/*.credentials
+**/*-credentials.*
 backend/schoollibrary-app/logs/schoollibrary.log
 backend/schoollibrary-app/logs/schoollibrary.log
 backend/schoollibrary-app/logs/archive/schoollibrary.2026-01-08.log
