@@ -31,8 +31,39 @@ else
         -d dependencies=web,data-jpa,postgresql,validation,actuator,flyway,security,oauth2-resource-server \
         -o project.zip
 
-    unzip -o project.zip
-    rm project.zip
+    # Check if the downloaded file is empty
+    if [ ! -s project.zip ]; then
+        echo "⚠️  Download failed or project.zip is empty. Retrying..."
+        curl https://start.spring.io/starter.zip \
+            -d type=maven-project \
+            -d language=java \
+            -d bootVersion=3.2.0 \
+            -d baseDir=. \
+            -d groupId=com.urbanbloom \
+            -d artifactId=urbanbloom-backend \
+            -d name=UrbanBloomBackend \
+            -d description="UrbanBloom backend with DDD architecture" \
+            -d packageName=com.urbanbloom.backend \
+            -d packaging=jar \
+            -d javaVersion=17 \
+            -d dependencies=web,data-jpa,postgresql,validation,actuator,flyway,security,oauth2-resource-server \
+            -o project.zip
+
+        if [ ! -s project.zip ]; then
+            echo "❌ Failed to download project.zip after retry. Exiting."
+            exit 1
+        fi
+    fi
+
+    # Extract the ZIP file using cmd.exe on Windows
+    if [ -f project.zip ]; then
+        echo "Extracting project.zip using cmd.exe..."
+        cmd.exe /c "tar -xf project.zip -C ."
+        rm project.zip
+    else
+        echo "❌ project.zip not found. Exiting."
+        exit 1
+    fi
 fi
 
 echo ""

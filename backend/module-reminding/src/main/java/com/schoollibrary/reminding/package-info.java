@@ -5,4 +5,4 @@
  * @author Backend Team
  * @version 1.0
  */
-package com.schoollibrary.reminding;
+package com.urbanbloom.reminding;

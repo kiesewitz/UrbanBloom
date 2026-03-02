@@ -1,5 +1,5 @@
 {
-  "realm": "schoollibrary-test",
+  "realm": "urbanbloom-test",
   "enabled": true,
   "registrationAllowed": true,
   "verifyEmail": true,
@@ -11,47 +11,31 @@
   "roles": {
     "realm": [
       {
-        "name": "STUDENT",
-        "description": "Student role"
+        "name": "CITIZEN",
+        "description": "Citizen role"
       },
       {
-        "name": "TEACHER",
-        "description": "Teacher role"
+        "name": "CITY_ADMIN",
+        "description": "City Administrator role"
       },
       {
-        "name": "LIBRARIAN",
-        "description": "Librarian role"
-      },
-      {
-        "name": "ADMIN",
-        "description": "Administrator role"
+        "name": "SUPER_ADMIN",
+        "description": "Super Administrator role"
       }
     ]
   },
   "clients": [
     {
-      "clientId": "schoollibrary-app",
+      "clientId": "urbanbloom-app",
       "enabled": true,
       "publicClient": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": true,
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
-      "redirectUris": ["*"],
-      "webOrigins": ["*"],
-      "protocol": "openid-connect"
+      "redirectUris": [
+        "*"
+      ]
     }
-  ],
-  "users": [],
-  "smtpServer": {
-    "host": "greenmail",
-    "port": "3025",
-    "from": "noreply@schule.de",
-    "auth": "false",
-    "replyTo": "noreply@schule.de"
-  },
-  "eventsEnabled": false,
-  "eventsListeners": ["jboss-logging"],
-  "adminEventsEnabled": false,
-  "adminEventsDetailsEnabled": false
+  ]
 }
