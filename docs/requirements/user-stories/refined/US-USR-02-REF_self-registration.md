@@ -113,3 +113,8 @@ Registration has its own flows and risks (domain validation, e‑mail verificati
 
 ## Relation zur User Story 1
 Diese Story trennt das Onboarding (Registrierung & Verifikation) vom reinen Login‑/Auth‑Mechanismus in `01-refined-user-authentication.md`. Nach Implementierung referenziert Auth‑Story die Registration‑Story für end‑to‑end Flows.
+
+## UI Prototype
+- **Screen**: Registration Screen
+- **File**: `shared-resources/docs/ui/mobile/registration.html`
+- **Screenshot**: `shared-resources/docs/ui/mobile/registration.png`

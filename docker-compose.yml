@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME:-urbanbloom}
-      POSTGRES_USER: ${DB_USER:-urbanbloom_user}
+      POSTGRES_USER: ${DB_USER:-urbanbloom}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
       TZ: Europe/Berlin
       PGPORT: ${DB_PORT:-5432}
@@ -14,45 +14,61 @@ services:
       - "${DB_PORT:-5432}:${DB_PORT:-5432}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - /etc/localtime:/etc/localtime:ro
     healthcheck:
-      test:
-        ["CMD-SHELL", "pg_isready -U ${DB_USER:-urbanbloom_user} -p ${DB_PORT:-5432}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-urbanbloom} -p ${DB_PORT:-5432}"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
     networks:
       - urbanbloom-network
 
   # Keycloak Identity Provider
   keycloak:
-    image: quay.io/keycloak/keycloak:22.0.1
+    image: keycloak/keycloak:26.4.7
     restart: unless-stopped
-    command: start-dev --import-realm
     volumes:
-      - ./themes:/opt/keycloak/themes:ro
+      - ./config/keycloak/themes:/opt/keycloak/themes:ro
       - ./config/keycloak:/opt/keycloak/data/import:ro
-      - /etc/localtime:/etc/localtime:ro
     environment:
       TZ: Europe/Berlin
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:${DB_PORT:-5432}/${DB_NAME:-urbanbloom}
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-urbanbloom}
+      KC_DB_USERNAME: ${DB_USER:-urbanbloom}
+      KC_DB_PASSWORD: ${DB_PASSWORD:-secret}
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: 8081
+      KC_IMPORT: /opt/keycloak/data/import/
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["start-dev", "--import-realm"]
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/127.0.0.1/8081' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    networks:
+      - urbanbloom-network
 
-  # MailPit Server
+  # Mailpit for local email testing
   mailpit:
     image: axllent/mailpit:latest
     restart: unless-stopped
     ports:
+      - "8025:8025" # UI
       - "1025:1025" # SMTP
-      - "8025:8025" # Web UI
     networks:
       - urbanbloom-network
+
+volumes:
+  postgres_data:
 
 networks:
   urbanbloom-network:
     driver: bridge
-
-volumes:
-  postgres_data:

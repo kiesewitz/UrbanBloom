@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mobile App Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #4CAF50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .header {
+            background: #4CAF50;
+            color: white;
+            padding: 60px 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .header .logo {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 24px;
+            background: #f5f5f5;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .remember-forgot label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .remember-forgot input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .remember-forgot a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
+        .social-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-social {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 15px;
+            color: #555;
+            transition: all 0.3s;
+        }
+
+        .btn-social:hover {
+            border-color: #4CAF50;
+            background: #f9f9f9;
+        }
+
+        .btn-social .icon {
+            font-size: 20px;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 24px;
+            padding: 16px;
+            background: white;
+            border-radius: 16px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .register-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .biometric-option {
+            text-align: center;
+            margin-top: 16px;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+        }
+
+        .biometric-option button {
+            background: none;
+            border: none;
+            font-size: 48px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .biometric-option button:hover {
+            transform: scale(1.1);
+        }
+
+        .biometric-option p {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 📡 🔋</span>
+        </div>
+
+        <div class="header">
+            <div class="logo">🌱</div>
+            <h1>UrbanBloom</h1>
+            <p>Willkommen zurück!</p>
+        </div>
+
+        <div class="content">
+            <div class="form-card">
+                <form>
+                    <div class="form-group">
+                        <label for="email">E-Mail oder Benutzername</label>
+                        <input type="text" id="email" placeholder="max@beispiel.de" required autocomplete="username">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Passwort</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+                            <span class="password-toggle">👁️</span>
+                        </div>
+                    </div>
+
+                    <div class="remember-forgot">
+                        <label>
+                            <input type="checkbox" id="remember">
+                            Angemeldet bleiben
+                        </label>
+                        <a href="../password_reset_screen/code.html">Passwort vergessen?</a>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Anmelden</button>
+
+                    <div class="divider">
+                        <span>oder anmelden mit</span>
+                    </div>
+
+                    <div class="social-buttons">
+                        <button type="button" class="btn-social">
+                            <span class="icon">🔵</span>
+                            <span>Mit Google anmelden</span>
+                        </button>
+                        <button type="button" class="btn-social">
+                            <span class="icon">🏫</span>
+                            <span>Mit Schul-SSO anmelden</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="biometric-option">
+                <button type="button" aria-label="Mit Biometrie anmelden">
+                    🔐
+                </button>
+                <p>Mit Face ID / Fingerabdruck anmelden</p>
+            </div>
+
+            <div class="register-link">
+                Noch kein Konto? <a href="../registration_screen/code.html">Jetzt registrieren</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

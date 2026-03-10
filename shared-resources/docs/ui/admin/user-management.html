@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UrbanBloom Registration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#33c758",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#121212",
+                        "forest-deep": "#0a1a0f",
+                        "charcoal": "#121212",
+                        "error": "#ff4d4d"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-gradient-branding {
+            background: linear-gradient(135deg, #0a1a0f 0%, #121212 100%);
+        }
+        /* Custom scrollbar for better dark mode look */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #2b362e; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white selection:bg-primary/30">
+<div class="flex min-h-screen w-full overflow-hidden">
+<!-- Left Side: Branding Panel (60%) -->
+<div class="relative hidden lg:flex w-[60%] bg-gradient-branding items-center justify-center p-20 overflow-hidden">
+<!-- Decorative Pattern -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" data-alt="abstract nature connectivity pattern with green lines">
+<svg height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="40" id="grid" patternunits="userSpaceOnUse" width="40">
+<path d="M 40 0 L 0 0 0 40" fill="none" stroke="#33c758" stroke-width="0.5"></path>
+</pattern>
+</defs>
+<rect fill="url(#grid)" height="100%" width="100%"></rect>
+</svg>
+</div>
+<div class="relative z-10 flex flex-col max-w-xl">
+<div class="flex items-center gap-4 mb-12">
+<div class="size-12 bg-primary rounded-xl flex items-center justify-center text-background-dark">
+<span class="material-symbols-outlined text-4xl">eco</span>
+</div>
+<h2 class="text-white text-3xl font-black tracking-tight">UrbanBloom</h2>
+</div>
+<h1 class="text-white text-6xl font-black leading-[1.1] tracking-tight mb-6">
+                    Track sustainability actions and progress
+                </h1>
+<p class="text-[#a1b5a6] text-xl leading-relaxed">
+                    Join a global community of change-makers. Monitor your green milestones, participate in challenges, and visualize your impact on the planet in real-time.
+                </p>
+<div class="mt-16 grid grid-cols-2 gap-8">
+<div class="flex flex-col gap-2">
+<span class="text-primary text-3xl font-bold">12.4k</span>
+<span class="text-[#a1b5a6] text-sm uppercase tracking-widest font-semibold">Tons of CO2 Saved</span>
+</div>
+<div class="flex flex-col gap-2">
+<span class="text-primary text-3xl font-bold">850+</span>
+<span class="text-[#a1b5a6] text-sm uppercase tracking-widest font-semibold">Active Schools</span>
+</div>
+</div>
+</div>
+<!-- Bottom visual accent -->
+<div class="absolute bottom-[-10%] left-[-10%] size-96 bg-primary/10 blur-[120px] rounded-full"></div>
+</div>
+<!-- Right Side: Registration Form (40%) -->
+<div class="w-full lg:w-[40%] bg-charcoal flex flex-col overflow-y-auto px-8 py-12 lg:px-16 justify-center">
+<div class="w-full max-w-[560px] mx-auto">
+<div class="mb-10">
+<h3 class="text-white text-3xl font-bold leading-tight mb-2">Create your UrbanBloom account</h3>
+<p class="text-[#a1b5a6]">Start your journey towards a greener future today.</p>
+</div>
+<form class="space-y-5" onsubmit="return false;">
+<!-- First & Last Name -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium">First name</label>
+<input class="w-full rounded-lg border-none bg-[#1e1e1e] text-white focus:ring-2 focus:ring-primary h-12 px-4 placeholder:text-[#555]" placeholder="Jane" type="text" value="Jane"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium">Last name</label>
+<input class="w-full rounded-lg border-none bg-[#1e1e1e] text-white focus:ring-2 focus:ring-primary h-12 px-4 placeholder:text-[#555]" placeholder="Doe" type="text" value="Smith"/>
+</div>
+</div>
+<!-- Email with Error -->
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium">Email address</label>
+<div class="relative">
+<input class="w-full rounded-lg border border-error/50 bg-[#1e1e1e] text-white focus:ring-2 focus:ring-error h-12 px-4 placeholder:text-[#555]" placeholder="jane@example.com" type="email" value="jane.smith@UrbanBloom.com"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 text-error">
+<span class="material-symbols-outlined text-xl">warning</span>
+</div>
+</div>
+<p class="text-error text-xs font-medium">Email already in use. Please try signing in instead.</p>
+</div>
+<!-- Password with Eye Toggle -->
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium">Password</label>
+<div class="relative">
+<input class="w-full rounded-lg border-none bg-[#1e1e1e] text-white focus:ring-2 focus:ring-primary h-12 px-4 placeholder:text-[#555]" placeholder="••••••••" type="password" value="GreenEarth123!"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-[#a1b5a6] hover:text-white" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+<!-- Password Checklist -->
+<div class="grid grid-cols-2 gap-2 mt-2">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span class="text-xs">8+ characters</span>
+</div>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span class="text-xs">At least one number</span>
+</div>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span class="text-xs">Special character</span>
+</div>
+<div class="flex items-center gap-2 text-[#a1b5a6]">
+<span class="material-symbols-outlined text-sm">circle</span>
+<span class="text-xs">One uppercase letter</span>
+</div>
+</div>
+</div>
+<!-- Confirm Password -->
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium">Confirm password</label>
+<div class="relative">
+<input class="w-full rounded-lg border-none bg-[#1e1e1e] text-white focus:ring-2 focus:ring-primary h-12 px-4 placeholder:text-[#555]" placeholder="••••••••" type="password" value="GreenEarth123"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 text-error">
+<span class="material-symbols-outlined text-xl">error_outline</span>
+</div>
+</div>
+<p class="text-error text-xs font-medium">Passwords do not match.</p>
+</div>
+<!-- Role Selection & Conditional Fields -->
+<div class="flex flex-col gap-4 p-4 rounded-xl bg-primary/5 border border-primary/10">
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium">Your Role</label>
+<select class="w-full rounded-lg border-none bg-[#1e1e1e] text-white focus:ring-2 focus:ring-primary h-12 px-4 appearance-none">
+<option value="student">Student</option>
+<option selected="" value="teacher">Teacher</option>
+<option value="admin">Admin</option>
+</select>
+</div>
+<!-- Conditional: Teacher Fields -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium">School</label>
+<select class="w-full rounded-lg border-none bg-[#1e1e1e] text-white focus:ring-2 focus:ring-primary h-12 px-4">
+<option>Forest High Academy</option>
+<option>Greenwood Secondary</option>
+<option>Oakwood Institute</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-white text-sm font-medium">Class</label>
+<select class="w-full rounded-lg border-none bg-[#1e1e1e] text-white focus:ring-2 focus:ring-primary h-12 px-4">
+<option>Environmental Science 101</option>
+<option>Global Sustainability B</option>
+<option>Advanced Ecology</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Terms Checkbox -->
+<label class="flex items-center gap-3 cursor-pointer group mt-4">
+<input checked="" class="size-5 rounded border-none bg-[#1e1e1e] text-primary focus:ring-primary focus:ring-offset-[#121212]" type="checkbox"/>
+<span class="text-sm text-[#a1b5a6] group-hover:text-white transition-colors">
+                            I agree to the <a class="text-primary hover:underline" href="#">Terms of Service</a> and <a class="text-primary hover:underline" href="#">Privacy Policy</a>.
+                        </span>
+</label>
+<!-- Submit Button -->
+<button class="w-full bg-primary hover:bg-primary/90 text-background-dark font-bold py-4 rounded-lg flex items-center justify-center gap-3 transition-all transform active:scale-[0.98] mt-6">
+<svg class="animate-spin h-5 w-5 text-background-dark" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path>
+</svg>
+<span>Creating account...</span>
+</button>
+<!-- Footer Link -->
+<div class="text-center mt-8">
+<p class="text-[#a1b5a6] text-sm font-medium">
+                            Already have an account? 
+                            <a class="text-primary font-bold hover:underline ml-1" href="#">Sign in</a>
+</p>
+</div>
+</form>
+</div>
+</div>
+</div>
+</body></html>

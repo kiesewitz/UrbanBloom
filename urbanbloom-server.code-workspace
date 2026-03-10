@@ -71,7 +71,7 @@
         "name": "Spring Boot (Debug)",
         "request": "launch",
         "cwd": "${workspaceFolder}",
-        "mainClass": "com.urbanbloom.UrbanBloomApplication",
+        "mainClass": "com.urbanbloom.app.UrbanBloomApplication",
         "projectName": "urbanbloom-server",
         "args": "",
         "envFile": "${workspaceFolder}/.env"
@@ -81,7 +81,7 @@
         "name": "Spring Boot (Run)",
         "request": "launch",
         "cwd": "${workspaceFolder}",
-        "mainClass": "com.urbanbloom.UrbanBloomApplication",
+        "mainClass": "com.urbanbloom.app.UrbanBloomApplication",
         "projectName": "urbanbloom-server"
       }
     ]

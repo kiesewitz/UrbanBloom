@@ -298,3 +298,12 @@ Future<Map<String, dynamic>> login(String email, String password) async {
 - Schulinterne Identity Provider Integration → LDAP/AD-Anbindung später
 - Datenschutz: Token-Storage muss DSGVO-konform sein
 - Mobile: Biometrische Auth erfordert zusätzliche Plattform-Permissions
+
+## UI Prototype
+- **Screen**: Login Screen
+- **File**: `shared-resources/docs/ui/admin/login.html`
+- **Screenshot**: `shared-resources/docs/ui/admin/login.png`
+
+- **Screen**: Login Screen (Mobile)
+- **File**: `shared-resources/docs/ui/mobile/login.html`
+- **Screenshot**: `shared-resources/docs/ui/mobile/login.png`

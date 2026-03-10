@@ -67,7 +67,15 @@
   "java.saveActions.organizeImports": true,
   "java.compile.nullAnalysis.mode": "automatic",
 
-  "spring-boot.ls.java.home": "",
+  "java.jdt.ls.java.home": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
+      "default": true
+    }
+  ],
+  "spring-boot.ls.java.home": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
 
   // ESLint (falls später TypeScript/JavaScript benötigt wird)
   "eslint.useFlatConfig": true,

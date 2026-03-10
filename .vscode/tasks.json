@@ -149,7 +149,11 @@
       "type": "shell",
       "command": "mvn clean install",
       "options": {
-        "cwd": "${workspaceFolder}/server"
+        "cwd": "${workspaceFolder}/server",
+        "env": {
+          "JAVA_HOME": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
+          "PATH": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot\\bin;${env:PATH}"
+        }
       },
       "problemMatcher": [
         "$maven"
@@ -170,7 +174,11 @@
       "type": "shell",
       "command": "mvn verify",
       "options": {
-        "cwd": "${workspaceFolder}/server"
+        "cwd": "${workspaceFolder}/server",
+        "env": {
+          "JAVA_HOME": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
+          "PATH": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot\\bin;${env:PATH}"
+        }
       },
       "problemMatcher": [
         "$maven"
@@ -189,9 +197,13 @@
     {
       "label": "server: run",
       "type": "shell",
-      "command": "mvn spring-boot:run",
+      "command": "mvn -f server-app/pom.xml spring-boot:run",
       "options": {
-        "cwd": "${workspaceFolder}/server"
+        "cwd": "${workspaceFolder}/server",
+        "env": {
+          "JAVA_HOME": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
+          "PATH": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot\\bin;${env:PATH}"
+        }
       },
       "problemMatcher": [
         "$maven"
@@ -212,7 +224,11 @@
       "type": "shell",
       "command": "mvn test",
       "options": {
-        "cwd": "${workspaceFolder}/server"
+        "cwd": "${workspaceFolder}/server",
+        "env": {
+          "JAVA_HOME": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
+          "PATH": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot\\bin;${env:PATH}"
+        }
       },
       "problemMatcher": [
         "$maven"
@@ -435,6 +451,80 @@
         "reveal": "always",
         "focus": false,
         "panel": "shared"
+      }
+    },
+    // ========== Infrastructure Tasks (Docker) ==========
+    {
+      "label": "infra: up",
+      "type": "shell",
+      "command": "docker-compose up -d",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "infra: down",
+      "type": "shell",
+      "command": "docker-compose down",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "infra: logs",
+      "type": "shell",
+      "command": "docker-compose logs -f",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated"
+      }
+    },
+    // ========== Full Stack Tasks ==========
+    {
+      "label": "run: apps-parallel",
+      "dependsOn": [
+        "server: run",
+        "web: run",
+        "mobile: run"
+      ],
+      "dependsOrder": "parallel",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "run: all (infra + apps)",
+      "dependsOn": [
+        "infra: up",
+        "run: apps-parallel"
+      ],
+      "dependsOrder": "sequence",
+      "group": {
+        "kind": "test",
+        "isDefault": false
       }
     }
   ]

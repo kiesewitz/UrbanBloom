@@ -242,3 +242,8 @@ public class KeycloakIdentityProvider implements IdentityProvider {
 ## Related Stories
 - US-USR-01-REF (User Authentication)
 - US-USR-02-REF (Self-Registration)
+
+## UI Prototype
+- **Screen**: Password Reset Screen
+- **File**: `shared-resources/docs/ui/mobile/password-reset.html`
+- **Screenshot**: `shared-resources/docs/ui/mobile/password-reset.png`

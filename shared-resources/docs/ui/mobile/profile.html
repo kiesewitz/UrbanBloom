@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Mobile App Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .mobile-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #4CAF50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .header h1 {
+            flex: 1;
+            font-size: 20px;
+        }
+
+        .profile-hero {
+            background: linear-gradient(180deg, #4CAF50 0%, #45a049 100%);
+            padding: 32px 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid #4CAF50;
+        }
+
+        .profile-hero h2 {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .profile-hero p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+            background: #f5f5f5;
+        }
+
+        .section {
+            background: white;
+            margin-bottom: 12px;
+            padding: 0;
+        }
+
+        .section-header {
+            padding: 16px 24px;
+            font-size: 13px;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f5f5f5;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:active {
+            background: #f9f9f9;
+        }
+
+        .menu-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 16px;
+        }
+
+        .menu-item-content {
+            flex: 1;
+        }
+
+        .menu-item-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .menu-item-subtitle {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .menu-item-action {
+            font-size: 20px;
+            color: #ccc;
+        }
+
+        .toggle-switch {
+            width: 51px;
+            height: 31px;
+            background: #ddd;
+            border-radius: 31px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #4CAF50;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        .logout-section {
+            padding: 24px;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #d32f2f;
+        }
+
+        .app-version {
+            text-align: center;
+            padding: 16px;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 📡 🔋</span>
+        </div>
+
+        <div class="header">
+            <button>←</button>
+            <h1>Profil</h1>
+            <button>⋯</button>
+        </div>
+
+        <div class="profile-hero">
+            <div class="avatar-wrapper">
+                <div class="avatar">👤</div>
+                <div class="avatar-edit">✏️</div>
+            </div>
+            <h2>Max Mustermann</h2>
+            <p>max.mustermann@beispiel.de</p>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-value">42</span>
+                    <span class="stat-label">Aktionen</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">1,250</span>
+                    <span class="stat-label">Punkte</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">8</span>
+                    <span class="stat-label">Badges</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <div class="section-header">Persönliche Daten</div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">👤</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">Profil bearbeiten</div>
+                        <div class="menu-item-subtitle">Name, E-Mail, Rolle</div>
+                    </div>
+                    <div class="menu-item-action">›</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">🔒</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">Passwort ändern</div>
+                        <div class="menu-item-subtitle">Sicherheit erhöhen</div>
+                    </div>
+                    <div class="menu-item-action">›</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">🔐</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">Biometrische Anmeldung</div>
+                        <div class="menu-item-subtitle">Face ID / Fingerabdruck</div>
+                    </div>
+                    <div class="toggle-switch active"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">Benachrichtigungen</div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">🔔</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">Push-Benachrichtigungen</div>
+                        <div class="menu-item-subtitle">Challenges & Updates</div>
+                    </div>
+                    <div class="toggle-switch active"></div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">📧</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">E-Mail Benachrichtigungen</div>
+                        <div class="menu-item-subtitle">Newsletter & Zusammenfassungen</div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">Privatsphäre</div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">👁️</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">Profil-Sichtbarkeit</div>
+                        <div class="menu-item-subtitle">Öffentlich</div>
+                    </div>
+                    <div class="menu-item-action">›</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">📍</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">Standortfreigabe</div>
+                        <div class="menu-item-subtitle">Für Aktionen erforderlich</div>
+                    </div>
+                    <div class="toggle-switch active"></div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">📜</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">Datenschutz & AGB</div>
+                        <div class="menu-item-subtitle">Rechtliche Hinweise</div>
+                    </div>
+                    <div class="menu-item-action">›</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">App</div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">❓</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">Hilfe & Support</div>
+                        <div class="menu-item-subtitle">FAQ, Kontakt</div>
+                    </div>
+                    <div class="menu-item-action">›</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">⭐</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">App bewerten</div>
+                        <div class="menu-item-subtitle">Im App Store / Play Store</div>
+                    </div>
+                    <div class="menu-item-action">›</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-icon">ℹ️</div>
+                    <div class="menu-item-content">
+                        <div class="menu-item-title">Über UrbanBloom</div>
+                        <div class="menu-item-subtitle">Version, Lizenzen</div>
+                    </div>
+                    <div class="menu-item-action">›</div>
+                </div>
+            </div>
+
+            <div class="logout-section">
+                <button class="btn-logout">Abmelden</button>
+            </div>
+
+            <div class="app-version">
+                UrbanBloom v1.0.0 • Made with 🌱 for a greener world
+            </div>
+        </div>
+    </div>
+</body>
+</html>
