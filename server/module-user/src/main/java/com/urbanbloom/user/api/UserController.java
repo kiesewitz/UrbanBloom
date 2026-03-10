@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST Controller for user profile endpoints.
- * Requires authentication for all operations.
  */
 @Slf4j
 @RestController
@@ -25,8 +24,6 @@ public class UserController {
 
     /**
      * Gets the current authenticated user's profile.
-     *
-     * @return the user profile
      */
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUserProfile() {
@@ -42,7 +39,7 @@ public class UserController {
         } catch (Exception e) {
             log.error("Unexpected error getting user profile", e);
             return ResponseEntity.internalServerError()
-                    .body(new ErrorResponseDto("Failed to get user profile"));
+                    .body(new ErrorResponseDto("INTERNAL_SERVER_ERROR", "Failed to get user profile"));
         }
     }
 }

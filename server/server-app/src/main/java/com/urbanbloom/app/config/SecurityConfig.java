@@ -40,6 +40,9 @@ public class SecurityConfig {
     @Value("${KEYCLOAK_CLIENT_ID:server-app}")
     private String keycloakClientId;
 
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
+
     /**
      * Configure the security filter chain.
      * For Hello World testing, we allow public access to /health and
@@ -60,7 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**", "/webjars/**", "/favicon.ico").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/health", "/health/**", "/api/v1/health", "/api/v1/app/info").permitAll()
-                        .requestMatchers("/api/v1/registration/**").permitAll()
+                        .requestMatchers("/api/v1/registration", "/api/v1/registration/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2

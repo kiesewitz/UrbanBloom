@@ -16,15 +16,13 @@ public class RegistrationMapper {
         command.setPassword(dto.getPassword());
         command.setFirstName(dto.getFirstName());
         command.setLastName(dto.getLastName());
-        command.setStudentId(dto.getStudentId());
-        command.setSchoolClass(dto.getSchoolClass());
         return command;
     }
 
     public RegistrationResponseDto toDto(RegistrationResult result) {
         return new RegistrationResponseDto(
                 result.getUserId(),
-                result.getEmail(),
+                result.getExternalId(),
                 result.getMessage(),
                 result.isVerificationRequired()
         );

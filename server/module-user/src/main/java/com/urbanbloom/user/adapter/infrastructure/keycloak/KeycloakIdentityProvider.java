@@ -1,17 +1,17 @@
 package com.urbanbloom.user.adapter.infrastructure.keycloak;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.urbanbloom.user.config.RegistrationConfigProperties;
 import com.urbanbloom.user.domain.AuthenticationException;
 import com.urbanbloom.user.domain.AuthenticationResult;
 import com.urbanbloom.user.domain.IdentityProvider;
 import com.urbanbloom.user.domain.PasswordResetException;
-import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,14 +22,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Keycloak implementation of the IdentityProvider interface.
- * Implements the Anti-Corruption Layer (ACL) pattern to abstract Keycloak
- * specifics.
  */
 @Slf4j
 @Component
@@ -37,27 +36,39 @@ public class KeycloakIdentityProvider implements IdentityProvider {
 
     private final Keycloak keycloak;
     private final RegistrationConfigProperties registrationConfig;
+    private final RestTemplate restTemplate;
 
-    @Value("${keycloak.admin.realm}")
-    private String realm;
+    private final String adminRealm;
+    private final String serverUrl;
+    private final String clientSecret;
 
-    @Value("${keycloak.admin.server-url}")
-    private String serverUrl;
-
-    @Value("${keycloak.token.client-id:server-app}")
-    private String tokenClientId;
-
-    @Value("${keycloak.token.client-secret:}")
-    private String tokenClientSecret;
-
-    public KeycloakIdentityProvider(Keycloak keycloak, RegistrationConfigProperties registrationConfig) {
+    public KeycloakIdentityProvider(
+            Keycloak keycloak, 
+            RegistrationConfigProperties registrationConfig,
+            @Value("${keycloak.admin.realm}") String adminRealm,
+            @Value("${keycloak.admin.server-url}") String serverUrl,
+            @Value("${keycloak.admin.client-secret:8gNbhElYUd3WvfxwIeBBEWAho0tGURPW}") String clientSecret) {
         this.keycloak = keycloak;
         this.registrationConfig = registrationConfig;
+        this.adminRealm = adminRealm;
+        this.serverUrl = serverUrl;
+        this.clientSecret = clientSecret;
+        this.restTemplate = new RestTemplate();
+        
+        log.info("Initialized KeycloakIdentityProvider with Server: {}, Realm: {}, Secret length: {}", 
+                serverUrl, adminRealm, clientSecret != null ? clientSecret.length() : 0);
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("KeycloakIdentityProvider PostConstruct - Client Secret configured: {}", 
+                (clientSecret != null && !clientSecret.isEmpty()));
     }
 
     @Override
     public String createUser(String email, String password, String firstName, String lastName,
             Map<String, List<String>> attributes) {
+        log.info("Creating user in Keycloak realm {}: {}", adminRealm, email);
         UserRepresentation user = new UserRepresentation();
         user.setUsername(email);
         user.setEmail(email);
@@ -73,38 +84,39 @@ public class KeycloakIdentityProvider implements IdentityProvider {
         credential.setTemporary(false);
         user.setCredentials(Collections.singletonList(credential));
 
-        Response response = keycloak.realm(realm).users().create(user);
-
-        if (response.getStatus() == 201) {
-            String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-            log.info("Successfully created user {} in Keycloak with ID {}", email, userId);
-            return userId;
-        } else {
-            String errorMsg = String.format("Fehler beim Erstellen des Benutzers in Keycloak. Status: %s, Error: %s",
-                    response.getStatus(), response.readEntity(String.class));
-            log.error(errorMsg);
-            throw new RuntimeException(errorMsg);
+        try (Response response = keycloak.realm(adminRealm).users().create(user)) {
+            if (response.getStatus() == 201) {
+                String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+                log.info("Successfully created user {} in Keycloak with ID {}", email, userId);
+                return userId;
+            } else {
+                String errorMsg = String.format("Fehler beim Erstellen des Benutzers in Keycloak. Status: %s, Error: %s",
+                        response.getStatus(), response.readEntity(String.class));
+                log.error(errorMsg);
+                throw new RuntimeException(errorMsg);
+            }
         }
     }
 
     @Override
     public boolean isEmailRegistered(String email) {
-        List<UserRepresentation> users = keycloak.realm(realm).users().search(email, true);
+        List<UserRepresentation> users = keycloak.realm(adminRealm).users().search(email, true);
         return !users.isEmpty();
     }
 
     @Override
     public void assignRole(String userId, String roleName) {
-        var roleRepresentation = keycloak.realm(realm).roles().get(roleName).toRepresentation();
-        keycloak.realm(realm).users().get(userId).roles().realmLevel()
+        log.info("Assigning role {} to user {} in realm {}", roleName, userId, adminRealm);
+        var roleRepresentation = keycloak.realm(adminRealm).roles().get(roleName).toRepresentation();
+        keycloak.realm(adminRealm).users().get(userId).roles().realmLevel()
                 .add(Collections.singletonList(roleRepresentation));
-        log.info("Assigned role {} to user {}", roleName, userId);
+        log.info("Successfully assigned role {} to user {}", roleName, userId);
     }
 
     @Override
     public void sendVerificationEmail(String userId) {
         try {
-            keycloak.realm(realm).users().get(userId).sendVerifyEmail();
+            keycloak.realm(adminRealm).users().get(userId).sendVerifyEmail();
             log.info("Triggered verification email for user {}", userId);
         } catch (Exception e) {
             log.warn("Failed to send verification email for user {}: {}", userId, e.getMessage());
@@ -112,69 +124,93 @@ public class KeycloakIdentityProvider implements IdentityProvider {
     }
 
     @Override
-    public AuthenticationResult authenticateWithCredentials(String email, String password) {
-        log.debug("Attempting to authenticate user: {}", email);
+    public AuthenticationResult authenticate(String email, String password, String realm, String clientId) {
+        log.debug("Attempting to authenticate user: {} in realm: {} with client: {}", email, realm, clientId);
 
-        try (Keycloak userKeycloak = KeycloakBuilder.builder()
-                .serverUrl(serverUrl)
-                .realm(realm)
-                .grantType(OAuth2Constants.PASSWORD)
-                .clientId(tokenClientId)
-                .clientSecret(tokenClientSecret)
-                .username(email)
-                .password(password)
-                .build()) {
+        String tokenUrl = String.format("%s/realms/%s/protocol/openid-connect/token", serverUrl, realm);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-            AccessTokenResponse tokenResponse = userKeycloak.tokenManager().getAccessToken();
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD);
+        body.add(OAuth2Constants.CLIENT_ID, clientId);
+        
+        // Use client secret if available (e.g. for server-side clients)
+        // Note: in MS-01, both urbanbloom-mobile-app and urbanbloom-admin-web are configured as non-public clients in the export
+        if (clientSecret != null && !clientSecret.isEmpty()) {
+            body.add(OAuth2Constants.CLIENT_SECRET, clientSecret);
+        }
+        
+        body.add(OAuth2Constants.USERNAME, email);
+        body.add(OAuth2Constants.PASSWORD, password);
 
-            if (tokenResponse != null) {
-                log.info("Successfully authenticated user: {}", email);
+        try {
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+            ResponseEntity<KeycloakTokenResponse> response = restTemplate.postForEntity(
+                    tokenUrl, request, KeycloakTokenResponse.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                KeycloakTokenResponse tokenResponse = response.getBody();
                 return new AuthenticationResult(
-                        tokenResponse.getToken(),
-                        tokenResponse.getRefreshToken(),
-                        tokenResponse.getExpiresIn(),
-                        tokenResponse.getRefreshExpiresIn(),
-                        tokenResponse.getTokenType());
+                        tokenResponse.accessToken(),
+                        tokenResponse.refreshToken(),
+                        tokenResponse.expiresIn(),
+                        tokenResponse.refreshExpiresIn(),
+                        tokenResponse.tokenType());
             } else {
                 throw AuthenticationException.invalidCredentials();
             }
-        } catch (NotAuthorizedException e) {
-            log.warn("Invalid credentials for user: {}", email);
-            throw AuthenticationException.invalidCredentials();
+        } catch (HttpClientErrorException e) {
+            String errorBody = e.getResponseBodyAsString();
+            log.warn("Auth error from Keycloak for {} in realm {}: {} - {}", email, realm, e.getStatusCode(), errorBody);
+            
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED || e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                if (errorBody.contains("invalid_grant")) {
+                    if (errorBody.contains("Account not fully set up") || errorBody.contains("update_password")) {
+                        throw AuthenticationException.updatePasswordRequired();
+                    }
+                    if (errorBody.contains("Account is disabled")) {
+                        throw AuthenticationException.accountDisabled();
+                    }
+                    if (errorBody.contains("Email not verified")) {
+                        throw AuthenticationException.accountNotVerified();
+                    }
+                }
+                throw AuthenticationException.invalidCredentials();
+            }
+            throw AuthenticationException.providerError("Keycloak API error: " + e.getStatusCode(), e);
         } catch (Exception e) {
-            log.error("Unexpected error during authentication", e);
+            log.error("Unexpected error during authentication for {}", email, e);
+            throw AuthenticationException.providerError("Interner Authentifizierungsfehler", e);
+        }
+    }
             throw AuthenticationException.providerError(e.getMessage(), e);
         }
     }
 
     @Override
-    public AuthenticationResult refreshToken(String refreshToken) {
-        log.debug("Attempting to refresh token");
+    public AuthenticationResult refreshToken(String refreshToken, String realm, String clientId) {
+        log.debug("Attempting to refresh token in realm: {} with client: {}", realm, clientId);
 
         String tokenUrl = String.format("%s/realms/%s/protocol/openid-connect/token", serverUrl, realm);
-        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("grant_type", "refresh_token");
-        body.add("client_id", tokenClientId);
-        if (tokenClientSecret != null && !tokenClientSecret.isBlank()) {
-            body.add("client_secret", tokenClientSecret);
+        body.add(OAuth2Constants.GRANT_TYPE, OAuth2Constants.REFRESH_TOKEN);
+        body.add(OAuth2Constants.CLIENT_ID, clientId);
+        if (clientSecret != null && !clientSecret.isEmpty()) {
+            body.add(OAuth2Constants.CLIENT_SECRET, clientSecret);
         }
-        body.add("refresh_token", refreshToken);
+        body.add(OAuth2Constants.REFRESH_TOKEN, refreshToken);
 
         try {
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-            ResponseEntity<KeycloakTokenResponse> response = restTemplate.exchange(
-                    tokenUrl,
-                    HttpMethod.POST,
-                    request,
-                    KeycloakTokenResponse.class);
+            ResponseEntity<KeycloakTokenResponse> response = restTemplate.postForEntity(
+                    tokenUrl, request, KeycloakTokenResponse.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 KeycloakTokenResponse tokenResponse = response.getBody();
-                log.info("Successfully refreshed token");
                 return new AuthenticationResult(
                         tokenResponse.accessToken(),
                         tokenResponse.refreshToken(),
@@ -185,7 +221,6 @@ public class KeycloakIdentityProvider implements IdentityProvider {
                 throw AuthenticationException.invalidRefreshToken();
             }
         } catch (HttpClientErrorException.BadRequest | HttpClientErrorException.Unauthorized e) {
-            log.warn("Invalid or expired refresh token");
             throw AuthenticationException.invalidRefreshToken();
         } catch (Exception e) {
             log.error("Unexpected error during token refresh", e);
@@ -194,30 +229,89 @@ public class KeycloakIdentityProvider implements IdentityProvider {
     }
 
     @Override
+    public boolean hasRole(String accessToken, String roleName) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(accessToken);
+            JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+            
+            log.debug("Checking role {} in JWT claims: {}", roleName, claimsSet.toJSONObject());
+
+            // 1. Check realm roles
+            Map<String, Object> realmAccess = (Map<String, Object>) claimsSet.getClaim("realm_access");
+            if (realmAccess != null) {
+                List<String> roles = (List<String>) realmAccess.get("roles");
+                if (roles != null && roles.contains(roleName)) {
+                    log.debug("Role {} found in realm_access", roleName);
+                    return true;
+                }
+            }
+
+            // 2. Check resource access (client roles)
+            Map<String, Object> resourceAccess = (Map<String, Object>) claimsSet.getClaim("resource_access");
+            if (resourceAccess != null) {
+                for (Object clientAccessObj : resourceAccess.values()) {
+                    if (clientAccessObj instanceof Map) {
+                        Map<String, Object> clientAccess = (Map<String, Object>) clientAccessObj;
+                        List<String> roles = (List<String>) clientAccess.get("roles");
+                        if (roles != null && roles.contains(roleName)) {
+                            log.debug("Role {} found in resource_access", roleName);
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            log.warn("Role {} not found in JWT. Available realm roles: {}", roleName, 
+                    realmAccess != null ? realmAccess.get("roles") : "none");
+            return false;
+        } catch (ParseException | ClassCastException e) {
+            log.error("Failed to parse access token for role check", e);
+            return false;
+        }
+    }
+
+    @Override
+    public void logout(String refreshToken, String realm, String clientId) {
+        log.info("Attempting to logout in realm: {} with client: {}", realm, clientId);
+
+        String logoutUrl = String.format("%s/realms/%s/protocol/openid-connect/logout", serverUrl, realm);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add(OAuth2Constants.CLIENT_ID, clientId);
+        if (clientSecret != null && !clientSecret.isEmpty()) {
+            body.add(OAuth2Constants.CLIENT_SECRET, clientSecret);
+        }
+        body.add(OAuth2Constants.REFRESH_TOKEN, refreshToken);
+
+        try {
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity(logoutUrl, request, Void.class);
+            log.info("Logout successful");
+        } catch (Exception e) {
+            log.warn("Logout failed in Keycloak: {}", e.getMessage());
+        }
+    }
+
+    @Override
     public void sendPasswordResetEmail(String email) {
         log.debug("Sending password reset email to: {}", email);
 
         try {
-            // 1. Search for user by email
-            // UserRepresentation is a Keycloak Admin Client class
-            List<UserRepresentation> users = keycloak.realm(realm)
+            List<UserRepresentation> users = keycloak.realm(adminRealm)
                     .users()
-                    .search(email, true); // exact match
+                    .search(email, true);
 
             if (users.isEmpty()) {
                 log.warn("Password reset requested for non-existent email: {}", email);
-                // Security best practice: don't reveal if email exists
-                // Just log and return silently
                 return;
             }
 
-            // 2. Get user ID
             UserRepresentation user = users.get(0);
             String userId = user.getId();
 
-            // 3. Trigger Keycloak's password reset email
-            // executeActionsEmail sends an UPDATE_PASSWORD action email
-            keycloak.realm(realm)
+            keycloak.realm(adminRealm)
                     .users()
                     .get(userId)
                     .executeActionsEmail(Collections.singletonList("UPDATE_PASSWORD"));
@@ -235,23 +329,17 @@ public class KeycloakIdentityProvider implements IdentityProvider {
         log.debug("Resetting password for user ID: {}", userId);
 
         try {
-            // Create new password credential
-            // CredentialRepresentation is a Keycloak Admin Client class
             CredentialRepresentation credential = new CredentialRepresentation();
             credential.setType(CredentialRepresentation.PASSWORD);
             credential.setValue(newPassword);
             credential.setTemporary(false);
 
-            // Set password via Keycloak Admin API
-            keycloak.realm(realm)
+            keycloak.realm(adminRealm)
                     .users()
                     .get(userId)
                     .resetPassword(credential);
 
             log.info("Password reset successful for user ID: {}", userId);
-        } catch (jakarta.ws.rs.NotFoundException e) {
-            log.error("User not found for password reset: {}", userId);
-            throw PasswordResetException.userNotFound();
         } catch (Exception e) {
             log.error("Failed to reset password", e);
             throw PasswordResetException.providerError("Fehler beim Zurücksetzen des Passworts: " + e.getMessage(), e);
@@ -260,7 +348,7 @@ public class KeycloakIdentityProvider implements IdentityProvider {
 
     @Override
     public void deleteUser(String userId) {
-        keycloak.realm(realm).users().get(userId).remove();
+        keycloak.realm(adminRealm).users().get(userId).remove();
         log.info("Deleted user {} from Keycloak", userId);
     }
 }

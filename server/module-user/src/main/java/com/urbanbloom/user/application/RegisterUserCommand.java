@@ -12,6 +12,4 @@ public class RegisterUserCommand {
     private String password;
     private String firstName;
     private String lastName;
-    private String studentId;
-    private String schoolClass;
 }

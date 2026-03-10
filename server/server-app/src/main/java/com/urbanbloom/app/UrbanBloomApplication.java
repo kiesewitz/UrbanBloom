@@ -8,9 +8,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * UrbanBloom Main Application Entry Point.
- *
- * @author Backend Team
- * @version 1.0
  */
 @SpringBootApplication
 @ComponentScan(basePackages = {

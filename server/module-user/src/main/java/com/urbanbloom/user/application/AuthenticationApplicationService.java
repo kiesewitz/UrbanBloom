@@ -6,13 +6,13 @@ import com.urbanbloom.user.domain.AuthenticationResult;
 import com.urbanbloom.user.domain.IdentityProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Application service for authentication use cases.
- * Orchestrates login, token refresh, and allowed domains retrieval.
  */
 @Slf4j
 @Service
@@ -21,53 +21,83 @@ public class AuthenticationApplicationService {
 
     private final IdentityProvider identityProvider;
     private final RegistrationConfigProperties registrationConfig;
+    private final com.urbanbloom.user.domain.UserProfileRepository userProfileRepository;
+
+    @Value("${keycloak.realm.mobile:urbanbloom-mobile}")
+    private String mobileRealm;
+
+    @Value("${keycloak.realm.admin:urbanbloom-admin}")
+    private String adminRealm;
+
+    @Value("${keycloak.token.client-id.mobile:urbanbloom-mobile-app}")
+    private String mobileClientId;
+
+    @Value("${keycloak.token.client-id.admin:urbanbloom-admin-web}")
+    private String adminClientId;
 
     /**
-     * Authenticates a user with email and password.
-     *
-     * @param command the login command
-     * @return AuthenticationResult containing tokens
-     * @throws AuthenticationException if authentication fails
+     * Authenticates a citizen for the mobile app.
      */
-    public AuthenticationResult login(LoginCommand command) {
-        log.info("Processing login request for email: {}", command.getEmail());
-
+    public AuthenticationResult loginMobile(LoginCommand command) {
+        log.info("Processing mobile login request for email: {}", command.getEmail());
+        AuthenticationResult result = identityProvider.authenticate(command.getEmail(), command.getPassword(), mobileRealm, mobileClientId);
+        
+        // Auto-activate local profile if login was successful (implies email verified in Keycloak)
         try {
-            AuthenticationResult result = identityProvider.authenticateWithCredentials(
-                    command.getEmail(),
-                    command.getPassword());
-            log.info("Login successful for email: {}", command.getEmail());
-            return result;
-        } catch (AuthenticationException e) {
-            log.warn("Login failed for email {}: {}", command.getEmail(), e.getMessage());
-            throw e;
+            userProfileRepository.findByEmail(new com.urbanbloom.user.domain.Email(command.getEmail()))
+                .ifPresent(profile -> {
+                    if (!profile.isActive()) {
+                        log.info("Auto-activating local profile for user: {}", command.getEmail());
+                        profile.markAsActive();
+                        userProfileRepository.save(profile);
+                    }
+                });
+        } catch (Exception e) {
+            log.warn("Failed to auto-activate local profile for {}: {}", command.getEmail(), e.getMessage());
         }
+        
+        return result;
     }
 
     /**
-     * Refreshes tokens using a refresh token.
-     *
-     * @param command the refresh token command
-     * @return AuthenticationResult containing new tokens
-     * @throws AuthenticationException if refresh fails
+     * Authenticates an admin for the web portal.
+     * Validates that the user has the ADMIN role.
+     */
+    public AuthenticationResult loginAdmin(LoginCommand command) {
+        log.info("Processing admin login request for email: {}", command.getEmail());
+        
+        AuthenticationResult result = identityProvider.authenticate(command.getEmail(), command.getPassword(), adminRealm, adminClientId);
+        
+        // Verify ADMIN role
+        if (!identityProvider.hasRole(result.accessToken(), "ADMIN")) {
+            log.warn("User {} authenticated but missing ADMIN role", command.getEmail());
+            throw AuthenticationException.forbidden();
+        }
+        
+        log.info("Admin login successful for email: {}", command.getEmail());
+        return result;
+    }
+
+    /**
+     * Refreshes tokens.
      */
     public AuthenticationResult refreshToken(RefreshTokenCommand command) {
-        log.debug("Processing token refresh request");
+        String realm = command.getRealm() != null ? command.getRealm() : mobileRealm;
+        String clientId = adminRealm.equals(realm) ? adminClientId : mobileClientId;
+        return identityProvider.refreshToken(command.getRefreshToken(), realm, clientId);
+    }
 
-        try {
-            AuthenticationResult result = identityProvider.refreshToken(command.getRefreshToken());
-            log.debug("Token refresh successful");
-            return result;
-        } catch (AuthenticationException e) {
-            log.warn("Token refresh failed: {}", e.getMessage());
-            throw e;
-        }
+    /**
+     * Logs out the user by revoking the refresh token.
+     */
+    public void logout(LogoutCommand command) {
+        String realm = command.getRealm() != null ? command.getRealm() : mobileRealm;
+        String clientId = adminRealm.equals(realm) ? adminClientId : mobileClientId;
+        identityProvider.logout(command.getRefreshToken(), realm, clientId);
     }
 
     /**
      * Returns the list of allowed email domains for registration.
-     *
-     * @return list of allowed domain strings
      */
     public List<String> getAllowedDomains() {
         return registrationConfig.getAllowedDomains();

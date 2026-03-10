@@ -1,26 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/theme/design_tokens.dart';
 import '../../../../ui/atoms/urban_button.dart';
 import '../../../../ui/atoms/urban_text_field.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _login() async {
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authServiceProvider).login(
+            _emailController.text.trim(),
+            _passwordController.text,
+          );
+      if (mounted) {
+        context.go('/actions');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.l),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,11 +84,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: AppSpacing.xl),
               UrbanButton(
-                label: 'Log In',
-                onPressed: () {
-                  // TODO: Implement login logic
-                  context.go('/actions');
-                },
+                label: _isLoading ? 'Logging in...' : 'Log In',
+                onPressed: _isLoading ? null : () => _login(),
               ),
               const SizedBox(height: AppSpacing.m),
               Center(

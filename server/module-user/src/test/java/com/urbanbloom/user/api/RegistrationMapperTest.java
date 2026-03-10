@@ -16,12 +16,10 @@ class RegistrationMapperTest {
     void shouldMapRequestToCommand() {
         // Arrange
         RegistrationRequestDto dto = new RegistrationRequestDto();
-        dto.setEmail("test@school.com");
+        dto.setEmail("test@urbanbloom.local");
         dto.setPassword("password123");
         dto.setFirstName("John");
         dto.setLastName("Doe");
-        dto.setStudentId("S12345");
-        dto.setSchoolClass("10A");
 
         // Act
         RegisterUserCommand command = mapper.toCommand(dto);
@@ -31,23 +29,20 @@ class RegistrationMapperTest {
         assertThat(command.getPassword()).isEqualTo(dto.getPassword());
         assertThat(command.getFirstName()).isEqualTo(dto.getFirstName());
         assertThat(command.getLastName()).isEqualTo(dto.getLastName());
-        assertThat(command.getStudentId()).isEqualTo(dto.getStudentId());
-        assertThat(command.getSchoolClass()).isEqualTo(dto.getSchoolClass());
     }
 
     @Test
     @DisplayName("should map RegistrationResult to RegistrationResponseDto")
     void shouldMapResultToDto() {
         // Arrange
-        RegistrationResult result = new RegistrationResult("user-id-567", "test@school.com", "User registered", true);
+        RegistrationResult result = new RegistrationResult("user-id-567", "external-id-890", "User registered");
 
         // Act
         RegistrationResponseDto dto = mapper.toDto(result);
 
         // Assert
         assertThat(dto.getUserId()).isEqualTo(result.getUserId());
-        assertThat(dto.getEmail()).isEqualTo(result.getEmail());
+        assertThat(dto.getExternalId()).isEqualTo(result.getExternalId());
         assertThat(dto.getMessage()).isEqualTo(result.getMessage());
-        assertThat(dto.isVerificationRequired()).isEqualTo(result.isVerificationRequired());
     }
 }

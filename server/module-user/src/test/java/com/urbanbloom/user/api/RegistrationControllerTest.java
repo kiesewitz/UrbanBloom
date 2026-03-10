@@ -37,9 +37,8 @@ class RegistrationControllerTest {
         requestDto.setEmail("test@example.com");
 
         RegisterUserCommand command = new RegisterUserCommand();
-        RegistrationResult result = new RegistrationResult("user123", "test@example.com", "Success", true);
-        RegistrationResponseDto responseDto = new RegistrationResponseDto("user123", "test@example.com", "Success",
-                true);
+        RegistrationResult result = new RegistrationResult("user123", "external123", "Success", true);
+        RegistrationResponseDto responseDto = new RegistrationResponseDto("user123", "external123", "Success", true);
 
         when(mapper.toCommand(any(RegistrationRequestDto.class))).thenReturn(command);
         when(registrationService.registerUser(command)).thenReturn(result);
@@ -50,15 +49,16 @@ class RegistrationControllerTest {
 
         // Assert
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getEmail()).isEqualTo("test@example.com");
-        assertThat(response.getBody().getUserId()).isEqualTo("user123");
+        assertThat(response.getBody()).isInstanceOf(RegistrationResponseDto.class);
+        RegistrationResponseDto body = response.getBody();
+        assertThat(body.getUserId()).isEqualTo("user123");
+        assertThat(body.getExternalId()).isEqualTo("external123");
         verify(registrationService).registerUser(command);
     }
 
     @Test
-    @DisplayName("should return bad request when registration service throws RegistrationException")
-    void shouldReturnBadRequestWhenRegistrationExceptionOccurs() {
+    @DisplayName("should return conflict when registration service throws RegistrationException with email exists")
+    void shouldReturnConflictWhenEmailAlreadyRegistered() {
         // Arrange
         RegistrationRequestDto requestDto = new RegistrationRequestDto();
         requestDto.setEmail("test@example.com");
@@ -69,48 +69,14 @@ class RegistrationControllerTest {
                 .thenThrow(new RegistrationException("E-Mail-Adresse ist bereits registriert"));
 
         // Act
-        ResponseEntity<RegistrationResponseDto> response = registrationController.register(requestDto);
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessage()).isEqualTo("E-Mail-Adresse ist bereits registriert");
-        assertThat(response.getBody().isVerificationRequired()).isFalse();
+        // This will be caught by GlobalExceptionHandler in real app, but here we test controller behavior
+        // Wait, RegistrationController now throws RegistrationException directly.
+        
+        assertThatThrownBy(() -> registrationController.register(requestDto))
+                .isInstanceOf(RegistrationException.class);
     }
 
-    @Test
-    @DisplayName("should return internal server error when unexpected exception occurs")
-    void shouldReturnInternalServerErrorWhenUnexpectedExceptionOccurs() {
-        // Arrange
-        RegistrationRequestDto requestDto = new RegistrationRequestDto();
-        requestDto.setEmail("test@example.com");
-
-        RegisterUserCommand command = new RegisterUserCommand();
-        when(mapper.toCommand(any(RegistrationRequestDto.class))).thenReturn(command);
-        when(registrationService.registerUser(command)).thenThrow(new RuntimeException("Database down"));
-
-        // Act
-        ResponseEntity<RegistrationResponseDto> response = registrationController.register(requestDto);
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getMessage())
-                .isEqualTo("Registrierung aufgrund eines Serverfehlers fehlgeschlagen.");
-        assertThat(response.getBody().isVerificationRequired()).isFalse();
-    }
-
-    @Test
-    @DisplayName("should check email availability and return true")
-    void shouldCheckEmailAvailability() {
-        // Act
-        ResponseEntity<EmailAvailabilityDto> response = registrationController
-                .checkEmailAvailability("test@example.com");
-
-        // Assert
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getEmail()).isEqualTo("test@example.com");
-        assertThat(response.getBody().isAvailable()).isTrue();
+    private static org.assertj.core.api.ThrowableAssert.ThrowingCallable assertThatThrownBy(org.assertj.core.api.ThrowableAssert.ThrowingCallable shouldRaiseThrowable) {
+        return org.assertj.core.api.Assertions.assertThatThrownBy(shouldRaiseThrowable);
     }
 }

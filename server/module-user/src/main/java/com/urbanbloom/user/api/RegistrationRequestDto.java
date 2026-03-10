@@ -24,8 +24,4 @@ public class RegistrationRequestDto {
     
     @NotBlank(message = "Last name is required")
     private String lastName;
-    
-    private String studentId;
-    
-    private String schoolClass;
 }

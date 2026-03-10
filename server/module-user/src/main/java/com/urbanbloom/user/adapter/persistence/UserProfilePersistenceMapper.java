@@ -19,15 +19,19 @@ public class UserProfilePersistenceMapper {
                 .lastName(domain.getUserName().getLastName())
                 .role(domain.getRole().name())
                 .active(domain.isActive())
+                .points(domain.getPoints())
                 .build();
     }
 
     public UserProfile toDomain(UserProfileJpaEntity entity) {
-        return UserProfile.create(
+        return UserProfile.reconstruct(
+                entity.getId(),
                 ExternalUserId.of(entity.getExternalUserId()),
                 Email.of(entity.getEmail()),
                 UserName.of(entity.getFirstName(), entity.getLastName()),
-                UserRole.of(entity.getRole())
+                UserRole.of(entity.getRole()),
+                entity.getPoints(),
+                entity.isActive()
         );
     }
 }

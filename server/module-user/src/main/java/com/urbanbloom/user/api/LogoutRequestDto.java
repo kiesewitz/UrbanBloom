@@ -1,16 +1,13 @@
-package com.urbanbloom.user.application;
+package com.urbanbloom.user.api;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * Command for token refresh.
+ * Request DTO for logout endpoint.
  */
 @Data
-public class RefreshTokenCommand {
-
+public class LogoutRequestDto {
     @NotBlank(message = "Refresh token is required")
     private String refreshToken;
-    
-    private String realm;
 }

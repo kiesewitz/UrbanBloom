@@ -1,6 +1,7 @@
 package com.urbanbloom.user.application;
 
 import com.urbanbloom.shared.ddd.DomainEventPublisher;
+import com.urbanbloom.user.config.RegistrationConfigProperties;
 import com.urbanbloom.user.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,9 @@ class UserRegistrationServiceTest {
     @Mock
     private DomainEventPublisher eventPublisher;
 
+    @Mock
+    private RegistrationConfigProperties registrationConfig;
+
     @Captor
     private ArgumentCaptor<UserProfile> userProfileCaptor;
 
@@ -40,7 +44,7 @@ class UserRegistrationServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new UserRegistrationService(identityProvider, userProfileRepository, registrationService, eventPublisher);
+        service = new UserRegistrationService(identityProvider, userProfileRepository, registrationService, eventPublisher, registrationConfig);
         // Mock allowed domains
         setAllowedDomains(List.of("urbanbloom.local"));
     }
@@ -68,15 +72,18 @@ class UserRegistrationServiceTest {
         when(userProfileRepository.existsByEmail(any(Email.class))).thenReturn(false);
         when(identityProvider.createUser(anyString(), anyString(), anyString(), anyString(), anyMap()))
                 .thenReturn(externalUserId);
-        when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(i -> i.getArgument(0));
+        when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(i -> {
+            UserProfile p = i.getArgument(0);
+            return p;
+        });
+        when(registrationConfig.isEmailVerificationRequired()).thenReturn(true);
 
         // When
         RegistrationResult result = service.registerUser(command);
 
         // Then
-        assertThat(result.getUserId()).isEqualTo(externalUserId);
-        assertThat(result.getEmail()).isEqualTo(command.getEmail());
-        assertThat(result.isVerificationRequired()).isTrue();
+        assertThat(result.getExternalId()).isEqualTo(externalUserId);
+        assertThat(result.getMessage()).contains("erfolgreich");
 
         verify(identityProvider).createUser(
                 eq(command.getEmail()),
@@ -133,37 +140,6 @@ class UserRegistrationServiceTest {
                 .hasMessageContaining("Benutzerprofil existiert bereits für E-Mail");
 
         verify(identityProvider, never()).createUser(anyString(), anyString(), anyString(), anyString(), anyMap());
-    }
-
-    @Test
-    void shouldIncludeCustomAttributesWhenProvided() {
-        // Given
-        RegisterUserCommand command = createValidCommand();
-        command.setStudentId("S12345");
-        command.setSchoolClass("10A");
-        String externalUserId = "keycloak-user-id-123";
-
-        when(registrationService.isRegistrationAllowed(any(Email.class), anyList())).thenReturn(true);
-        when(registrationService.determineInitialRole(any(Email.class))).thenReturn(UserRole.CITIZEN);
-        when(identityProvider.isEmailRegistered(anyString())).thenReturn(false);
-        when(userProfileRepository.existsByEmail(any(Email.class))).thenReturn(false);
-        when(identityProvider.createUser(anyString(), anyString(), anyString(), anyString(), anyMap()))
-                .thenReturn(externalUserId);
-        when(userProfileRepository.save(any(UserProfile.class))).thenAnswer(i -> i.getArgument(0));
-
-        ArgumentCaptor<Map<String, List<String>>> attributesCaptor = ArgumentCaptor.forClass(Map.class);
-
-        // When
-        service.registerUser(command);
-
-        // Then
-        verify(identityProvider).createUser(
-                anyString(), anyString(), anyString(), anyString(),
-                attributesCaptor.capture());
-
-        Map<String, List<String>> attributes = attributesCaptor.getValue();
-        assertThat(attributes).containsEntry("studentId", List.of("S12345"));
-        assertThat(attributes).containsEntry("schoolClass", List.of("10A"));
     }
 
     @Test

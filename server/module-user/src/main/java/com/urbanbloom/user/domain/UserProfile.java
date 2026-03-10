@@ -30,6 +30,13 @@ public class UserProfile extends AggregateRoot {
     private boolean active;
 
     /**
+     * Internal constructor for creating an aggregate with a specific ID.
+     */
+    protected UserProfile(String id) {
+        super(id);
+    }
+
+    /**
      * Creates a new user profile (Factory Method).
      * This represents the user registration process.
      *
@@ -51,7 +58,7 @@ public class UserProfile extends AggregateRoot {
         profile.userName = userName;
         profile.role = role;
         profile.points = 0;
-        profile.active = true;
+        profile.active = false; // New profiles are inactive until email is verified
 
         // Publish domain event
         profile.registerEvent(new UserProfileCreatedEvent(
@@ -62,6 +69,39 @@ public class UserProfile extends AggregateRoot {
         ));
 
         return profile;
+    }
+
+    /**
+     * Reconstructs a user profile from persistent storage.
+     * Use this ONLY for infrastructure adapters.
+     */
+    public static UserProfile reconstruct(
+            String id,
+            ExternalUserId externalUserId,
+            Email email,
+            UserName userName,
+            UserRole role,
+            int points,
+            boolean active) {
+        UserProfile profile = new UserProfile(id);
+        profile.externalUserId = externalUserId;
+        profile.email = email;
+        profile.userName = userName;
+        profile.role = role;
+        profile.points = points;
+        profile.active = active;
+        return profile;
+    }
+
+    /**
+     * Marks this user profile as active (e.g. after email verification).
+     */
+    public void markAsActive() {
+        if (active) {
+            return;
+        }
+        this.active = true;
+        registerEvent(new UserProfileReactivatedEvent(getId(), email));
     }
 
     /**

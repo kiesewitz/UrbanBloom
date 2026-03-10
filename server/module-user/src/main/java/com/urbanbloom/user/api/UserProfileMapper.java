@@ -1,12 +1,10 @@
 package com.urbanbloom.user.api;
 
-import com.urbanbloom.user.domain.UserGroup;
 import com.urbanbloom.user.domain.UserProfile;
-import com.urbanbloom.user.domain.UserRole;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Mapper for converting UserProfile domain objects to UserDto.
@@ -24,22 +22,12 @@ public class UserProfileMapper {
         return new UserDto(
                 profile.getId(),
                 profile.getExternalUserId().getValue(),
+                profile.getEmail().getValue(),
                 profile.getUserName().getFirstName(),
                 profile.getUserName().getLastName(),
-                profile.getEmail().getValue(),
-                mapRoleToGroup(profile.getRole()),
-                profile.isActive(),
-                LocalDate.now(), // TODO: Add registration date to UserProfile
-                LocalDateTime.now() // TODO: Add last login timestamp to UserProfile
+                profile.isActive() ? "ENABLED" : "DISABLED",
+                List.of(profile.getRole().name()),
+                LocalDateTime.now() // TODO: Registration date in UserProfile
         );
-    }
-
-    private UserGroup mapRoleToGroup(UserRole role) {
-        return switch (role.name()) {
-            case "CITIZEN", "VERIFIED_CITIZEN" -> UserGroup.CITIZEN;
-            case "DISTRICT_MANAGER" -> UserGroup.DISTRICT_MANAGER;
-            case "ADMIN" -> UserGroup.ADMIN;
-            default -> UserGroup.CITIZEN;
-        };
     }
 }

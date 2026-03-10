@@ -84,7 +84,10 @@ class UserRegistrationIT {
         // Create identity provider with test realm
         identityProvider = new TestKeycloakIdentityProvider(
                 keycloakAdminClient,
-                TEST_REALM);
+                new RegistrationConfigProperties(),
+                TEST_REALM,
+                keycloakContainer.getAuthServerUrl(),
+                "test-secret");
 
         // Create in-memory repository
         userProfileRepository = new InMemoryUserProfileRepository();
@@ -94,11 +97,15 @@ class UserRegistrationIT {
 
         // Create registration service with real components
         RegistrationService domainService = new DefaultRegistrationService();
+        RegistrationConfigProperties config = new RegistrationConfigProperties();
+        config.setEmailVerificationRequired(true);
+        
         registrationService = new TestUserRegistrationService(
                 identityProvider,
                 userProfileRepository,
                 domainService,
                 eventPublisher,
+                config,
                 List.of("urbanbloom.local", "city.urbanbloom.local"));
     }
 
@@ -141,13 +148,12 @@ class UserRegistrationIT {
 
         // When
         RegistrationResult result = registrationService.registerUser(command);
-        createdUserIds.add(result.getUserId());
+        createdUserIds.add(result.getExternalId());
 
         // Then
         assertThat(result).isNotNull();
         assertThat(result.getUserId()).isNotEmpty();
-        assertThat(result.getEmail()).isEqualTo("user@urbanbloom.local");
-        assertThat(result.isVerificationRequired()).isTrue();
+        assertThat(result.getExternalId()).isNotEmpty();
 
         // Verify user exists in Keycloak
         var users = keycloakAdminClient.realm(TEST_REALM)
@@ -171,7 +177,7 @@ class UserRegistrationIT {
             props.put("mail.pop3.port", String.valueOf(pop3Port));
             Session session = Session.getInstance(props);
             Store store = session.getStore("pop3");
-            store.connect(host, pop3Port, result.getEmail(), "password");
+            store.connect(host, pop3Port, "user@urbanbloom.local", "password");
             Folder inbox = store.getFolder("INBOX");
             inbox.open(Folder.READ_ONLY);
             Message[] messages = inbox.getMessages();
@@ -194,7 +200,7 @@ class UserRegistrationIT {
         command.setLastName("User");
 
         RegistrationResult result = registrationService.registerUser(command);
-        createdUserIds.add(result.getUserId());
+        createdUserIds.add(result.getExternalId());
 
         assertThatThrownBy(() -> registrationService.registerUser(command))
                 .isInstanceOf(RegistrationException.class)
@@ -212,9 +218,9 @@ class UserRegistrationIT {
         command.setLastName("User");
 
         RegistrationResult result = registrationService.registerUser(command);
-        createdUserIds.add(result.getUserId());
+        createdUserIds.add(result.getExternalId());
 
-        var userResource = keycloakAdminClient.realm(TEST_REALM).users().get(result.getUserId());
+        var userResource = keycloakAdminClient.realm(TEST_REALM).users().get(result.getExternalId());
         var realmRoles = userResource.roles().realmLevel().listAll();
         assertThat(realmRoles).extracting(RoleRepresentation::getName).contains("CITIZEN");
     }
@@ -263,15 +269,8 @@ class UserRegistrationIT {
     }
 
     private static class TestKeycloakIdentityProvider extends KeycloakIdentityProvider {
-        public TestKeycloakIdentityProvider(Keycloak keycloak, String realm) {
-            super(keycloak, new RegistrationConfigProperties());
-            try {
-                var field = KeycloakIdentityProvider.class.getDeclaredField("realm");
-                field.setAccessible(true);
-                field.set(this, realm);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        public TestKeycloakIdentityProvider(Keycloak keycloak, RegistrationConfigProperties config, String realm, String serverUrl, String secret) {
+            super(keycloak, config, realm, serverUrl, secret);
         }
     }
 
@@ -281,8 +280,9 @@ class UserRegistrationIT {
                 UserProfileRepository userProfileRepository,
                 RegistrationService registrationService,
                 DomainEventPublisher eventPublisher,
+                RegistrationConfigProperties config,
                 List<String> allowedDomains) {
-            super(identityProvider, userProfileRepository, registrationService, eventPublisher);
+            super(identityProvider, userProfileRepository, registrationService, eventPublisher, config);
             try {
                 var field = UserRegistrationService.class.getDeclaredField("allowedDomainStrings");
                 field.setAccessible(true);

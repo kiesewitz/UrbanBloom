@@ -1,6 +1,7 @@
 package com.urbanbloom.user.application;
 
 import com.urbanbloom.shared.ddd.DomainEventPublisher;
+import com.urbanbloom.user.config.RegistrationConfigProperties;
 import com.urbanbloom.user.domain.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,9 @@ public class UserRegistrationService {
     private final UserProfileRepository userProfileRepository;
     private final RegistrationService registrationService;
     private final DomainEventPublisher eventPublisher;
+    private final RegistrationConfigProperties registrationConfig;
 
-    @Value("${urbanbloom.registration.allowed-domains}")
+    @Value("${urbanbloom.registration.allowed-domains:*}")
     private List<String> allowedDomainStrings;
 
     /**
@@ -49,12 +51,14 @@ public class UserRegistrationService {
         UserName userName = UserName.of(command.getFirstName(), command.getLastName());
 
         // 3. Check domain allowlist
-        List<AllowedDomain> allowedDomains = allowedDomainStrings.stream()
-                .map(AllowedDomain::of)
-                .toList();
+        if (allowedDomainStrings != null && !allowedDomainStrings.contains("*")) {
+            List<AllowedDomain> allowedDomains = allowedDomainStrings.stream()
+                    .map(AllowedDomain::of)
+                    .toList();
 
-        if (!registrationService.isRegistrationAllowed(email, allowedDomains)) {
-            throw new RegistrationException("E-Mail-Domäne ist nicht zulässig: " + email.getValue());
+            if (!registrationService.isRegistrationAllowed(email, allowedDomains)) {
+                throw new RegistrationException("E-Mail-Domäne ist nicht zulässig: " + email.getValue());
+            }
         }
 
         // 4. Check if already registered
@@ -69,15 +73,9 @@ public class UserRegistrationService {
         // 5. Determine initial role
         UserRole initialRole = registrationService.determineInitialRole(email);
 
-        // 6. Create user in IdP with custom attributes
+        // 6. Create user in IdP
         Map<String, List<String>> attributes = new HashMap<>();
-        if (command.getStudentId() != null) {
-            attributes.put("studentId", List.of(command.getStudentId()));
-        }
-        if (command.getSchoolClass() != null) {
-            attributes.put("schoolClass", List.of(command.getSchoolClass()));
-        }
-
+        
         String externalUserId = identityProvider.createUser(
                 email.getValue(),
                 command.getPassword(),
@@ -104,13 +102,13 @@ public class UserRegistrationService {
         eventPublisher.publishAll(userProfile.getDomainEvents());
         userProfile.clearDomainEvents();
 
-        log.info("Successfully registered user with ID: {}", externalUserId);
+        log.info("Successfully registered user with local ID: {} and external ID: {}", userProfile.getId(), externalUserId);
 
         return new RegistrationResult(
+                userProfile.getId(),
                 externalUserId,
-                email.getValue(),
-                "Registrierung erfolgreich. Bitte prüfe dein E-Mail-Postfach, um dein Konto verifizieren.",
-                true);
+                "Registrierung erfolgreich. Bitte prüfe dein E-Mail-Postfach, um dein Konto zu verifizieren.",
+                registrationConfig.isEmailVerificationRequired());
     }
 
     private void validateCommand(RegisterUserCommand command) {

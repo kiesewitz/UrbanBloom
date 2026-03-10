@@ -1,21 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/theme/design_tokens.dart';
 import '../../../../ui/atoms/urban_button.dart';
 import '../../../../ui/atoms/urban_text_field.dart';
 
-class RegistrationScreen extends StatefulWidget {
+class RegistrationScreen extends ConsumerStatefulWidget {
   const RegistrationScreen({super.key});
 
   @override
-  State<RegistrationScreen> createState() => _RegistrationScreenState();
+  ConsumerState<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
-class _RegistrationScreenState extends State<RegistrationScreen> {
+class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _register() async {
+    if (_emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _firstNameController.text.isEmpty ||
+        _lastNameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authServiceProvider).register(
+            _emailController.text.trim(),
+            _passwordController.text,
+            _firstNameController.text.trim(),
+            _lastNameController.text.trim(),
+          );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration successful! Please verify your email.'),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+        context.pop(); // Go back to login
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,11 +131,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               const SizedBox(height: AppSpacing.xl),
               UrbanButton(
-                label: 'Sign Up',
-                onPressed: () {
-                  // TODO: Implement registration logic
-                  context.go('/actions');
-                },
+                label: _isLoading ? 'Creating account...' : 'Sign Up',
+                onPressed: _isLoading ? null : () => _register(),
               ),
               const SizedBox(height: AppSpacing.m),
               Center(

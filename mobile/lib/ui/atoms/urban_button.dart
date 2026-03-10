@@ -3,14 +3,14 @@ import '../../core/theme/design_tokens.dart';
 
 class UrbanButton extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isLoading;
   final bool isFullWidth;
 
   const UrbanButton({
     super.key,
     required this.label,
-    required this.onPressed,
+    this.onPressed,
     this.isLoading = false,
     this.isFullWidth = true,
   });

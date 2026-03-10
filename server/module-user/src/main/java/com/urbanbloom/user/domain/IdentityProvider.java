@@ -4,92 +4,63 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Interface to abstract interaction with an external Identity Provider (e.g.,
- * Keycloak).
- * This follows the Anti-Corruption Layer (ACL) pattern to avoid vendor lock-in.
+ * Interface to abstract interaction with an external Identity Provider (e.g., Keycloak).
  */
 public interface IdentityProvider {
 
     /**
-     * Creates a new user in the identity provider.
-     *
-     * @param email      The user's email (will be used as username)
-     * @param password   The plain text password (will be hashed by IdP)
-     * @param firstName  First name of the user
-     * @param lastName   Last name of the user
-     * @param attributes Custom attributes (e.g., studentId, schoolClass)
-     * @return The unique ID of the created user in the IdP
+     * Creates a new user in the identity provider (default realm).
      */
     String createUser(String email, String password, String firstName, String lastName,
             Map<String, List<String>> attributes);
 
     /**
-     * Checks if a user with the given email already exists.
-     *
-     * @param email The email to check
-     * @return true if the email is already registered
+     * Checks if a user with the given email already exists (default realm).
      */
     boolean isEmailRegistered(String email);
 
     /**
-     * Assigns a role to a user.
-     *
-     * @param userId   The IdP user ID
-     * @param roleName The name of the role (e.g., "STUDENT", "TEACHER")
+     * Assigns a role to a user (default realm).
      */
     void assignRole(String userId, String roleName);
 
     /**
-     * Triggers the verification email flow for a user.
-     *
-     * @param userId The IdP user ID
+     * Triggers the verification email flow for a user (default realm).
      */
     void sendVerificationEmail(String userId);
 
     /**
-     * Authenticates a user with email and password credentials.
-     * Returns tokens if authentication is successful.
-     *
-     * @param email    The user's email address
-     * @param password The user's password
-     * @return AuthenticationResult containing access and refresh tokens
-     * @throws AuthenticationException if authentication fails
+     * Authenticates a user with email and password credentials in a specific realm and client.
      */
-    AuthenticationResult authenticateWithCredentials(String email, String password);
+    AuthenticationResult authenticate(String email, String password, String realm, String clientId);
 
     /**
-     * Refreshes authentication tokens using a valid refresh token.
-     *
-     * @param refreshToken The refresh token to exchange
-     * @return AuthenticationResult containing new access and refresh tokens
-     * @throws AuthenticationException if refresh token is invalid or expired
+     * Refreshes authentication tokens using a valid refresh token in a specific realm and client.
      */
-    AuthenticationResult refreshToken(String refreshToken);
+    AuthenticationResult refreshToken(String refreshToken, String realm, String clientId);
 
     /**
-     * Sends a password reset email to the user with the given email address.
-     * Uses Keycloak's built-in password reset email flow.
-     *
-     * @param email The email address of the user
-     * @throws PasswordResetException if user not found or email sending fails
+     * Checks if the user associated with the token has the given role.
+     */
+    boolean hasRole(String accessToken, String roleName);
+
+    /**
+     * Revokes a refresh token (logs out the user).
+     */
+    void logout(String refreshToken, String realm, String clientId);
+
+    /**
+     * Sends a password reset email (default realm).
      */
     void sendPasswordResetEmail(String email);
 
     /**
-     * Resets the password for a user using Keycloak Admin API.
-     * This is called after the user has received the reset token via email
-     * and submitted the new password.
-     *
-     * @param userId      The Keycloak user ID
-     * @param newPassword The new password to set
-     * @throws PasswordResetException if password reset fails
+     * Resets the password for a user using Keycloak Admin API (default realm).
      */
     void resetUserPassword(String userId, String newPassword);
 
     /**
-     * Deletes a user (e.g., for cleanup in tests or rollback).
-     *
-     * @param userId The IdP user ID
+     * Deletes a user (default realm).
      */
     void deleteUser(String userId);
 }
