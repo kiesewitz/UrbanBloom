@@ -8,11 +8,28 @@
   "resetPasswordAllowed": true,
   "editUsernameAllowed": false,
   "bruteForceProtected": true,
+  "smtpServer": {
+    "host": "greenmail",
+    "port": "3025",
+    "from": "admin@urbanbloom.local"
+  },
   "roles": {
     "realm": [
       {
         "name": "CITIZEN",
         "description": "Citizen role"
+      },
+      {
+        "name": "VERIFIED_CITIZEN",
+        "description": "Verified Citizen role"
+      },
+      {
+        "name": "DISTRICT_MANAGER",
+        "description": "District Manager role"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrator role"
       },
       {
         "name": "CITY_ADMIN",
@@ -25,6 +42,18 @@
     ]
   },
   "clients": [
+    {
+      "clientId": "server-app",
+      "enabled": true,
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "redirectUris": [
+        "*"
+      ]
+    },
     {
       "clientId": "urbanbloom-app",
       "enabled": true,

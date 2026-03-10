@@ -63,3 +63,17 @@ The administrative portal serves as the command center for city officials and di
 - **Runtime**: Java 21 (LTS)
 - **Infrastructure**: Docker Desktop (PostgreSQL, Keycloak, Mailpit)
 - **Development Tools**: VS Code with Workspace integration and Maven 3.x.
+
+## 6. Network Port Configuration
+
+The following ports are used by the UrbanBloom ecosystem during development and testing:
+
+| Port | Service | Component | Description |
+| :--- | :--- | :--- | :--- |
+| **8080** | Spring Boot | Backend | Primary REST API and Application Server |
+| **8081** | Keycloak | Infrastructure | Authentication Server and Admin Console |
+| **5432** | PostgreSQL | Infrastructure | Main relational database |
+| **8025** | Mailpit UI | Infrastructure | Web interface for inspecting outgoing emails |
+| **1025** | Mailpit SMTP | Infrastructure | Local SMTP relay for development |
+| **3025** | GreenMail | Testing | SMTP server used during integration tests |
+| **3110** | GreenMail | Testing | POP3 server used during integration tests |

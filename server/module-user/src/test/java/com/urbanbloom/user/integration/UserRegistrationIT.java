@@ -221,7 +221,16 @@ class UserRegistrationIT {
 
     private static void setupTestRealm() {
         try {
-            keycloakAdminClient.realm(TEST_REALM).toRepresentation();
+            RealmRepresentation existingRealm = keycloakAdminClient.realm(TEST_REALM).toRepresentation();
+            // Ensure SMTP is configured even if imported
+            if (existingRealm.getSmtpServer() == null || existingRealm.getSmtpServer().isEmpty()) {
+                java.util.Map<String, String> smtpConfig = new java.util.HashMap<>();
+                smtpConfig.put("host", "greenmail");
+                smtpConfig.put("port", "3025");
+                smtpConfig.put("from", "admin@urbanbloom.local");
+                existingRealm.setSmtpServer(smtpConfig);
+                keycloakAdminClient.realm(TEST_REALM).update(existingRealm);
+            }
             return;
         } catch (Exception e) {}
 
@@ -230,6 +239,13 @@ class UserRegistrationIT {
         realm.setEnabled(true);
         realm.setRegistrationAllowed(true);
         realm.setVerifyEmail(true);
+
+        java.util.Map<String, String> smtpConfig = new java.util.HashMap<>();
+        smtpConfig.put("host", "greenmail");
+        smtpConfig.put("port", "3025");
+        smtpConfig.put("from", "admin@urbanbloom.local");
+        realm.setSmtpServer(smtpConfig);
+
         keycloakAdminClient.realms().create(realm);
 
         ClientRepresentation client = new ClientRepresentation();

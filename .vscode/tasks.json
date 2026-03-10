@@ -149,11 +149,7 @@
       "type": "shell",
       "command": "mvn clean install",
       "options": {
-        "cwd": "${workspaceFolder}/server",
-        "env": {
-          "JAVA_HOME": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
-          "PATH": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot\\bin;${env:PATH}"
-        }
+        "cwd": "${workspaceFolder}/server"
       },
       "problemMatcher": [
         "$maven"
@@ -174,11 +170,7 @@
       "type": "shell",
       "command": "mvn verify",
       "options": {
-        "cwd": "${workspaceFolder}/server",
-        "env": {
-          "JAVA_HOME": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
-          "PATH": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot\\bin;${env:PATH}"
-        }
+        "cwd": "${workspaceFolder}/server"
       },
       "problemMatcher": [
         "$maven"
@@ -199,11 +191,7 @@
       "type": "shell",
       "command": "mvn -f server-app/pom.xml spring-boot:run",
       "options": {
-        "cwd": "${workspaceFolder}/server",
-        "env": {
-          "JAVA_HOME": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
-          "PATH": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot\\bin;${env:PATH}"
-        }
+        "cwd": "${workspaceFolder}/server"
       },
       "problemMatcher": [
         "$maven"
@@ -224,11 +212,7 @@
       "type": "shell",
       "command": "mvn test",
       "options": {
-        "cwd": "${workspaceFolder}/server",
-        "env": {
-          "JAVA_HOME": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot",
-          "PATH": "C:\\Program Files\\Microsoft\\jdk-21.0.10.7-hotspot\\bin;${env:PATH}"
-        }
+        "cwd": "${workspaceFolder}/server"
       },
       "problemMatcher": [
         "$maven"

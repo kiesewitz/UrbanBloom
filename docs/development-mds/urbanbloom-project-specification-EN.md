@@ -1,6 +1,8 @@
 # UrbanBloom — Complete Project Specification (AI-Optimized)
 
-> **Deadline**: January 27 — all changes must be pushed to GitHub **BEFORE** the class session.
+> **Setup Deadline (MS-00)**: January 27 — workspace, CI, folder structure, prototypes, and Keycloak config must be pushed to GitHub BEFORE the class session.
+>
+> **Implementation Milestone (MS-01)**: Authentication, Registration & Password Management — see Section 9 for full specification.
 >
 > **Important for the AI**: Read this entire document before writing any code or modifying any files.
 > Start by exploring all three reference folders listed in Section 1, then proceed to implement changes
@@ -648,3 +650,399 @@ Realm Settings → Action (top right) → Export → enable "Export clients" and
 | UrbanBloom DDD architecture docs | `UrbanBloom/docs/architecture/` |
 | UrbanBloom coding standards | `UrbanBloom/.github/copilot-instructions.md` |
 | Init scripts | `UrbanBloom/scripts/init-server.sh`, `init-mobile.sh`, `init-web-admin.sh` |
+
+---
+
+## 9. Milestone MS-01: Authentication, Registration & Password Management
+
+> **Document reference**: `MS-01-AUTH-REG-RESET.pdf` (2026-02-03)
+>
+> **Scope**: This milestone covers the complete implementation of Identity and Access Management (IAM)
+> for UrbanBloom. Keycloak acts as the central Identity Provider (IdP) for both mobile users (citizens)
+> and administrators (web-admin).
+>
+> **Explicitly OUT of scope for MS-01**: Token refresh mechanism — do NOT implement this yet.
+
+---
+
+### 9.1 Functional Requirements
+
+#### 9.1.1 Self-Registration (Mobile App — Citizens Only)
+
+- Citizens can register themselves directly in the mobile app
+- **Email verification**: After registration a confirmation email is sent; the account is only activated after the user clicks the verification link
+- **Role assignment**: New users automatically receive the `CITIZEN` role as default
+
+#### 9.1.2 Login
+
+**Mobile (Citizens):**
+- Login via email + password directly in the Flutter app
+- Login only works after email has been verified
+
+**Admin Web:**
+- Administrators log in through a dedicated admin login screen
+- Admins are created manually in Keycloak — there is no self-registration for admins
+- **Forced password change**: On the very first login, if Keycloak returns `update_password` status, the app detects this and redirects the admin to the Keycloak UI to set a new password. After completing the password change, the admin is redirected back to the web-admin app and must log in again.
+
+#### 9.1.3 Password Management (Forgot Password)
+
+- Users can request a password reset link via "Forgot Password"
+- The backend triggers a Keycloak reset action, which sends an email containing a Keycloak-hosted reset link
+- The user sets the new password in the **Keycloak browser UI** (not in the app)
+- After completing the reset, Keycloak automatically redirects back to the app:
+  - Mobile: via **deep link**
+  - Web Admin: via **redirect URL**
+- The backend responds with neutral feedback ("email sent") regardless of whether the address exists (prevents user enumeration)
+
+#### 9.1.4 Logout (Mobile & Web Admin)
+
+- Users can log out securely from both apps
+- **Server-side token invalidation**: The app sends the refresh token to the backend (`POST /api/v1/auth/logout`), which revokes it in Keycloak, ending the server-side session
+- **Client-side cleanup**: The app deletes all locally stored tokens (SecureStorage on mobile, LocalStorage on web) and redirects to the login screen
+
+#### 9.1.5 User Profile Data — Dual Storage & Sync
+
+User data is stored redundantly across two systems:
+
+| System | Stores | Authority |
+|---|---|---|
+| **Keycloak** | Email, password (hashed), roles, account status | Leading for authentication |
+| **PostgreSQL** | Extended profile data: display name, registration date, status, app-specific fields | Leading for profile/app logic |
+
+**Synchronization rule**: At registration and login, both systems must be in sync. The link between Keycloak and the local DB is the `externalId` field, which holds the **Keycloak User ID**.
+
+**Registration flow**:
+1. Backend creates user in Keycloak → receives Keycloak User ID
+2. Backend creates user profile in PostgreSQL with `externalId = keycloakUserId`, `status = DISABLED`
+3. User clicks verification link → Keycloak activates the account → PostgreSQL status updated to `ENABLED`
+
+---
+
+### 9.2 REST API Endpoints (Backend — `server/`)
+
+All endpoints must be implemented in the `module-user` bounded context.
+All endpoints must be registered in `openapi/urbanbloom-api-v1.yaml` **before** implementation.
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/v1/auth/mobile/login` | `POST` | Authenticate citizen (email + password) via Keycloak Direct Grant |
+| `/api/v1/auth/admin/login` | `POST` | Authenticate admin via Keycloak Direct Grant — validates `ADMIN` role |
+| `/api/v1/registration` | `POST` | Create new citizen account (Keycloak + PostgreSQL) |
+| `/api/v1/users/me` | `GET` | Fetch the enriched user profile from PostgreSQL (requires valid JWT) |
+| `/api/v1/auth/password/reset-request` | `POST` | Trigger Keycloak password reset email |
+| `/api/v1/auth/logout` | `POST` | Revoke refresh token in Keycloak (server-side session end) |
+
+#### Request/Response Details
+
+**`POST /api/v1/auth/mobile/login`**
+```json
+// Request
+{ "email": "user@example.com", "password": "secret" }
+
+// Response 200
+{ "accessToken": "...", "refreshToken": "...", "expiresIn": 900 }
+
+// Response 401 — wrong credentials or email not verified
+{ "error": "UNAUTHORIZED", "message": "Invalid credentials or account not verified" }
+```
+
+**`POST /api/v1/auth/admin/login`**
+```json
+// Request
+{ "email": "admin@urbanbloom.city", "password": "..." }
+
+// Response 200
+{ "accessToken": "...", "refreshToken": "...", "expiresIn": 900 }
+
+// Response 401 — temporary password (first login)
+{ "error": "UPDATE_PASSWORD_REQUIRED", "message": "Password change required", "keycloakLoginUrl": "http://keycloak:8081/realms/urbanbloom-admin/protocol/openid-connect/auth?..." }
+
+// Response 403 — authenticated but missing ADMIN role
+{ "error": "FORBIDDEN", "message": "Insufficient role" }
+```
+
+**`POST /api/v1/registration`**
+```json
+// Request
+{ "email": "user@example.com", "password": "secret", "firstName": "Max", "lastName": "Mustermann" }
+
+// Response 201
+{ "userId": "local-db-uuid", "externalId": "keycloak-uuid", "message": "Registration successful. Please verify your email." }
+
+// Response 409 — email already exists
+{ "error": "CONFLICT", "message": "Email already registered" }
+```
+
+**`GET /api/v1/users/me`**
+```json
+// Response 200 (requires Authorization: Bearer <accessToken>)
+{ "id": "local-db-uuid", "externalId": "keycloak-uuid", "email": "user@example.com", "firstName": "Max", "lastName": "Mustermann", "status": "ENABLED", "roles": ["CITIZEN"], "registeredAt": "2026-01-15T10:00:00Z" }
+```
+
+**`POST /api/v1/auth/password/reset-request`**
+```json
+// Request
+{ "email": "user@example.com" }
+
+// Response 200 — always returns OK (never reveals whether email exists)
+{ "message": "If this email is registered, a reset link has been sent." }
+```
+
+**`POST /api/v1/auth/logout`**
+```json
+// Request (requires Authorization: Bearer <accessToken>)
+{ "refreshToken": "..." }
+
+// Response 200
+{ "message": "Logged out successfully" }
+```
+
+---
+
+### 9.3 Process Flows (Sequence Diagrams)
+
+#### Flow A: Registration & Email Verification
+
+```
+Mobile App          Backend API         PostgreSQL          Keycloak            Mail Server
+    |                    |                   |                   |                    |
+    |-- POST /api/v1/registration ---------->|                   |                    |
+    |                    |-- createUser() -------------------------------->|           |
+    |                    |<-- keycloakUserId -----------------------------|           |
+    |                    |-- INSERT user_profile (externalId, status=DISABLED) ->|   |
+    |                    |<-- profile saved ------------------|           |           |
+    |                    |                   |-- send verification email ------------>|
+    |<-- 201 Created ----|                   |                   |                    |
+    |                    |                   |                   |                    |
+    |     [User clicks verification link in browser]            |                    |
+    |                    |                   |-- activate user (status=ENABLED) ->|  |
+    |                    |                   |<-- confirmed ------|                   |
+```
+
+#### Flow B: Admin Login — Forced Password Change
+
+```
+Admin Web App       Backend API         Keycloak
+    |                    |                   |
+    |-- POST /api/v1/auth/admin/login ------>|
+    |                    |-- Direct Grant Auth ----------->|
+    |                    |<-- error: update_password ------|
+    |<-- 401 { UPDATE_PASSWORD_REQUIRED, keycloakLoginUrl }
+    |
+    |-- [Redirect to Keycloak UI via keycloakLoginUrl]
+    |                                        |
+    |         Admin sets new password in Keycloak browser UI
+    |                                        |
+    |<-- [Redirect back to Web Admin App] ---|
+    |
+    |-- POST /api/v1/auth/admin/login (new password) ----->|
+    |<-- 200 { accessToken, refreshToken } ---|
+```
+
+#### Flow C: Forgot Password (Reset)
+
+```
+Mobile/Web App      Backend API         Keycloak            Mail Server
+    |                    |                   |                   |
+    |-- POST /api/v1/auth/password/reset-request (email) ------->|
+    |                    |-- triggerResetAction() -------->|      |
+    |                    |<-- OK -------------------------|      |
+    |<-- 200 "email sent" (neutral)                        |      |
+    |                    |                   |-- send reset email ->|
+    |                    |                   |                   |  |
+    |     [User clicks reset link → Keycloak browser UI]        |  |
+    |                    |                   |                   |
+    |         User sets new password on Keycloak page
+    |                    |                   |
+    |<-- [Redirect to app via deep-link / redirect URL] ---------|
+```
+
+#### Flow D: Logout
+
+```
+Mobile/Web App      Backend API         Keycloak
+    |                    |                   |
+    |-- POST /api/v1/auth/logout (refreshToken) ----------->|
+    |                    |-- revokeToken(refreshToken) -->|
+    |                    |<-- OK -------------------------|
+    |<-- 200 "logged out" |                   |
+    |                    |                   |
+    |-- [Delete local tokens from SecureStorage/LocalStorage]
+    |-- [Navigate to Login screen]
+```
+
+---
+
+### 9.4 Backend Implementation Details
+
+#### DDD Module: `module-user`
+
+All MS-01 backend logic lives in `server/module-user/`. The module follows Hexagonal Architecture:
+
+```
+server/module-user/src/main/java/com/urbanbloom/user/
+├── domain/
+│   ├── UserProfile.java              # Aggregate Root (local DB profile)
+│   ├── UserId.java                   # Value Object (local DB ID)
+│   ├── ExternalUserId.java           # Value Object (Keycloak ID)
+│   ├── Email.java                    # Value Object (validated)
+│   ├── UserRole.java                 # Enum: CITIZEN, ADMIN, DISTRICT_MANAGER
+│   ├── UserStatus.java               # Enum: ENABLED, DISABLED
+│   ├── UserProfileRepository.java    # Repository Interface (domain layer)
+│   ├── IdentityProvider.java         # Port Interface (Keycloak abstraction)
+│   ├── RegistrationService.java      # Domain Service
+│   └── events/
+│       ├── UserRegisteredEvent.java
+│       └── UserProfileCreatedEvent.java
+├── application/
+│   ├── RegisterUserUseCase.java       # Orchestrates Keycloak + DB creation
+│   ├── AuthenticateMobileUserUseCase.java
+│   ├── AuthenticateAdminUseCase.java
+│   ├── RequestPasswordResetUseCase.java
+│   ├── LogoutUseCase.java
+│   ├── GetUserProfileUseCase.java
+│   └── commands/
+│       ├── RegisterUserCommand.java
+│       ├── LoginCommand.java
+│       └── PasswordResetRequestCommand.java
+├── adapter/
+│   ├── in/rest/
+│   │   ├── AuthController.java        # /api/v1/auth/**
+│   │   ├── RegistrationController.java # /api/v1/registration
+│   │   ├── UserController.java        # /api/v1/users/me
+│   │   └── dto/                       # Request/Response DTOs
+│   └── out/
+│       ├── persistence/
+│       │   ├── UserProfileJpaEntity.java
+│       │   ├── UserProfileJpaRepository.java
+│       │   └── UserProfileRepositoryAdapter.java
+│       └── keycloak/
+│           ├── KeycloakIdentityProvider.java  # Implements IdentityProvider port
+│           └── KeycloakTokenResponse.java
+└── config/
+    ├── KeycloakConfig.java            # Keycloak admin client bean
+    └── SecurityConfig.java            # JWT resource server config
+```
+
+> Reference implementation (directly reusable): `prj_school-library-ref/backend/module-user/`
+> This module already implements login, registration, password reset, and Keycloak integration.
+> **Rename packages from `com.schoollibrary.user` to `com.urbanbloom.user` and adapt to UrbanBloom roles.**
+
+#### Key Implementation Rules
+
+- The `IdentityProvider` interface in the domain layer abstracts all Keycloak calls — the domain never imports Keycloak libraries directly
+- `UserProfile` in PostgreSQL is created with `status = DISABLED` at registration; it is activated when Keycloak fires the email verification event or the backend polls for it
+- Admin login must explicitly check that the returned JWT contains the `ADMIN` role; reject with `403` if not
+- Password reset endpoint **always returns 200** regardless of whether the email is registered — this prevents user enumeration attacks
+- Token storage on mobile: `flutter_secure_storage` only — never plain SharedPreferences
+
+#### Keycloak Admin Client Configuration (`KeycloakConfig.java`)
+
+The backend uses the `admin-cli` service account to manage users programmatically:
+
+```java
+// Required Keycloak properties in application.yml:
+keycloak:
+  auth-server-url: http://localhost:8081
+  realm: urbanbloom-mobile          # or urbanbloom-admin
+  resource: admin-cli
+  credentials:
+    secret: ${KEYCLOAK_ADMIN_CLI_SECRET}
+```
+
+---
+
+### 9.5 Frontend Implementation Details
+
+#### Mobile App (`mobile/`) — Flutter
+
+**Screens required for MS-01** (map to existing prototypes in `shared-resources/docs/ui/mobile/`):
+
+| Screen | File | Prototype |
+|---|---|---|
+| Login | `features/user/presentation/pages/login_screen.dart` | `shared-resources/docs/ui/mobile/login.html` |
+| Registration | `features/user/presentation/pages/registration_screen.dart` | `shared-resources/docs/ui/mobile/registration.html` |
+| Forgot Password | `features/user/presentation/pages/forgot_password_screen.dart` | `shared-resources/docs/ui/mobile/password-reset.html` |
+| Profile | `features/user/presentation/pages/profile_screen.dart` | `shared-resources/docs/ui/mobile/profile.html` |
+
+**Deep Link setup** (for password reset redirect back into the app):
+- Configure a custom URL scheme (e.g., `urbanbloom://`) or App Links in `AndroidManifest.xml` / `Info.plist`
+- `go_router` handles the incoming deep link and navigates to the appropriate screen
+
+**Auth service** (`core/services/auth_service.dart`):
+- Wraps all API calls to `auth/login`, `auth/logout`, `registration`, `users/me`
+- Stores `accessToken` and `refreshToken` in `flutter_secure_storage`
+- On app start: checks for stored token, validates, and navigates to home or login accordingly
+
+> Reference: `prj_school-library-ref/frontend-mobile/lib/core/services/auth_service.dart`
+> Reference: `prj_school-library-ref/frontend-mobile/lib/features/user/presentation/pages/`
+
+#### Admin Web App (`admin-web/`) — Flutter Web
+
+**Screens required for MS-01** (map to existing prototypes in `shared-resources/docs/ui/admin/`):
+
+| Screen | File | Prototype |
+|---|---|---|
+| Admin Login | `features/access_control/presentation/pages/admin_login_page.dart` | `shared-resources/docs/ui/admin/login.html` |
+| Dashboard (post-login) | `features/analytics/presentation/pages/dashboard_page.dart` | `shared-resources/docs/ui/admin/dashboard.html` |
+
+**Forced password change handling**:
+- On `401` response with `UPDATE_PASSWORD_REQUIRED`: extract `keycloakLoginUrl` from response body and open it in a new browser tab / redirect
+- After the admin returns, trigger a fresh login
+
+**Token storage**: Use `dart:html` `window.localStorage` (web-safe) or a session-scoped provider — never `flutter_secure_storage` on web (not supported)
+
+> Reference: `EcoTrack/admin-web/lib/features/access_control/presentation/pages/`
+
+---
+
+### 9.6 Acceptance Criteria
+
+| # | Criterion |
+|---|---|
+| AC-01 | A citizen can register with email + password; the account is inactive until the verification email is clicked |
+| AC-02 | Login is rejected for unverified accounts with a clear error message |
+| AC-03 | A verified citizen can log in with correct credentials and receives an access token |
+| AC-04 | An admin logs in via the admin login screen; first login forces a password change via Keycloak UI redirect |
+| AC-05 | After a password change, the admin can log in again with the new password |
+| AC-06 | "Forgot Password" sends an email; the reset link opens the Keycloak password page; after reset the user is redirected back to the app |
+| AC-07 | Logout invalidates the session server-side (Keycloak revokes the token) |
+| AC-08 | After logout, locally stored tokens are deleted and the user sees the login screen |
+| AC-09 | `GET /api/v1/users/me` returns the enriched profile from PostgreSQL for an authenticated user |
+| AC-10 | Password reset always returns 200 regardless of whether the email exists |
+
+---
+
+### 9.7 Definition of Done (MS-01)
+
+- [ ] All 6 REST endpoints implemented and documented in `openapi/urbanbloom-api-v1.yaml`
+- [ ] Unit tests for all domain classes (`UserProfile`, `Email`, `ExternalUserId`, `RegistrationService`)
+- [ ] Integration tests for all 6 endpoints (using TestContainers + Keycloak test realm)
+- [ ] Keycloak realms (`urbanbloom-mobile`, `urbanbloom-admin`) configured per Section 6.1
+- [ ] Email templates configured in Keycloak (registration verification + password reset)
+- [ ] Mobile screens: Login, Registration, Forgot Password, Profile — connected to API
+- [ ] Admin web screens: Login — connected to API, forced-password-change redirect working
+- [ ] Deep link / redirect URL configured for password reset return flow
+- [ ] All CI pipeline jobs pass (GitHub Actions)
+
+---
+
+### 9.8 Key References for MS-01
+
+| What | Where |
+|---|---|
+| Complete reference backend implementation | `prj_school-library-ref/backend/module-user/` |
+| Keycloak identity provider adapter | `prj_school-library-ref/backend/module-user/src/.../keycloak/KeycloakIdentityProvider.java` |
+| Auth controllers (login, registration, reset) | `prj_school-library-ref/backend/module-user/src/.../api/AuthController.java` |
+| Registration controller | `prj_school-library-ref/backend/module-user/src/.../api/RegistrationController.java` |
+| Mobile auth service | `prj_school-library-ref/frontend-mobile/lib/core/services/auth_service.dart` |
+| Mobile login/registration/forgot-password screens | `prj_school-library-ref/frontend-mobile/lib/features/user/presentation/pages/` |
+| Admin login page (Flutter Web) | `EcoTrack/admin-web/lib/features/access_control/presentation/pages/admin_login_page.dart` |
+| Password reset walkthrough | `prj_school-library-ref/docs/implementation-details/walkthroughs/Password Reset Frontend Implementation - Walkthrough.md` |
+| Backend auth implementation details | `prj_school-library-ref/docs/implementation-details/impl-details_backend_US-USR-01-REF_user-authentication.md` |
+| Backend registration implementation details | `prj_school-library-ref/docs/implementation-details/impl-details_backend_US-USR-02-REF_self-registration.md` |
+| Backend-Frontend auth explanation | `prj_school-library-ref/docs/chats/backend-frontend/authentication-explanation.chat.md` |
+| Password reset deep-link chat | `prj_school-library-ref/docs/chats/backend-frontend/Backend Password Reset and deep-link.md` |
+| Keycloak DPoP lesson learned | `prj_school-library-ref/docs/lessons-learnded/backend/keycloak-dpop-login.md` |
+| GreenMail integration lesson | `prj_school-library-ref/docs/lessons-learnded/backend/lessons-learned-greenmail-keycloak-integration.md` |
+| JPA + Mail lesson | `prj_school-library-ref/docs/lessons-learnded/backend/lessons-learned-jpa-and-mail.md` |
