@@ -11,6 +11,14 @@
 
 Alle Architektur-Dokumente befinden sich im Verzeichnis: `docs/architecture/`
 
+### Backend-Implementierung (aktueller Code-Stand)
+
+#### `backend-overview.md`
+- dokumentiert den realen Backend-Stand in `Urban/server`
+- enthaelt die wichtigsten Module, Endpunkte, Security- und Persistenzdetails
+- enthaelt ein Sequence Diagram und ein passendes Moduldiagramm in Mermaid
+- geeignet als Einstieg fuer Backend, API und Integrationsverstaendnis
+
 ### 🎯 Phase 1: Strategisches Design (AKTUELL)
 
 **START HIER ↓**
